@@ -1,0 +1,213 @@
+{extend name="company/public/insidePageBase" /}
+{block name="title"}游戏管理{/block}
+{block name="css"}
+{__block__}
+<style>
+</style>
+{/block}
+{block name="body"}
+<div class="layuimini-container">
+    <div class="layuimini-main">
+        <script type="text/html" id="toolbar">
+            <div class="layui-btn-container">
+                {if $addAuth} <button class="layui-btn layui-btn-normal layui-btn-sm data-add-btn" lay-event="add"> 添加 </button> {/if}
+                {if $delAuth} <button class="layui-btn layui-btn-sm layui-btn-danger data-delete-btn" lay-event="delete"> 删除 </button> {/if}
+            </div>
+        </script>
+        <table class="layui-hide" id="companyGameList" lay-filter="companyGameList"></table>
+        <script type="text/html" id="tableBar">
+            <div class="layui-btn-group">
+                {if $editAuth} <a class="layui-btn layui-btn-sm layui-btn-normal" lay-event="edit">编辑</a>{/if}
+                {if $delAuth} <a class="layui-btn layui-btn-sm layui-btn-danger" lay-event="delete">删除</a>{/if}
+            </div>
+        </script>
+        <script type="text/html" id="status_tpl">
+            <input type="checkbox" lay-skin="switch" value="{{ d.id }}" lay-filter="status" {{# if(d.status == 1) { }}checked{{# } }} lay-text="启动|关闭" />
+        </script>
+         <script type="text/html" id="picture_tpl">
+            {{# if(d.image) { }}
+                <img src="{{ d.image }}" style="height:100%" class="checkPictureByImg" />
+            {{# } }}
+        </script>
+    </div>
+</div> 
+{/block}
+{block name="js"}
+{__block__}
+<script>MICROANSWER_DROPDOWAN="mDropdown";</script>
+<script>
+    layui.use(['form', 'table','mDropdown', 'layCascader', 'laydate'], function () {
+        var $ = layui.jquery,form = layui.form,  dropdown = layui.mDropdown, layCascader = layui.layCascader,table = layui.table,laydate = layui.laydate,upload = layui.upload;
+        var tableId = 'companyGameList';
+        table.render({elem: '#'+tableId,id:tableId,url: '{:url("companyGameList")}',toolbar: '#toolbar',
+            cols: [[
+                {type: "checkbox", width: 50},
+                {field: 'game_name', title: '名称'},
+                {field: 'gamename', title: '别名'},
+                {field: 'game_key', width: 150, title: '密钥'},
+                {field: 'image', width: 100, title: '封面图片',templet:'#picture_tpl'},
+                {field: 'game_api', title: '游戏API地址',},
+                {field: 'game_url', title: '游戏访问地址'},
+                {field: 'sort', title: '权重',sort: true},
+                {field: 'status', title: '状态',width: 108, templet: '#status_tpl',sort: true},
+                {if $editAuth || $delAuth || $userDetailAuth}
+                  {title: '操作', minWidth: 168, fixed:'right', toolbar: '#tableBar'},
+                {/if}
+            ]],
+            limits: [10, 15, 20, 25, 50, 100, 500, 1000, 2000, 3000, 5000],
+            limit: 15,
+            page: true,
+            height: 'full-120'
+        });
+        table.on('tool('+tableId+')', function(obj){
+            var data = obj.data
+            if(obj.event === 'edit'){
+                var url = '{:url("companyGameEdit")}?id='+data.id
+                var index = layer.open({
+                    title: '编辑',
+                    type: 2,
+                    shade: 0.2,
+                    maxmin: true,
+                    area: ['800px', '95%'],
+                    content: url,
+                    btnAlign: 'c',
+                    btn: ['确定','取消'],
+                    yes: function( index, layero) {
+                        var iframeWindow = window['layui-layer-iframe' + index],
+                        submit = layero.find('iframe').contents().find("#submitBtn");
+                        // 监听提交
+                        iframeWindow.layui.form.on('submit(submitBtn)', function(data){
+                            var field = data.field //获取提交的字段
+                            var loadAdd = layer.msg('提交中',{icon: 16, time: 0, shade: 0.1, offset: '15px'})
+                            $.post(url, field, function(res){
+                                layer.close(loadAdd)
+                                if(res.code === 0) {
+                                    table.reload(tableId)
+                                    layer.close(index)
+                                    layer.msg(res.msg, {icon:6, offset: '15px'})
+                                }else {
+                                    layer.msg(res.msg, {icon:5, offset: '15px'})
+                                }
+                            })
+                        })
+                        submit.trigger('click')
+                    }
+                })
+                $(window).on("resize", function(){
+                    layer.full(index)
+                })
+                return false
+            }
+
+            else if(obj.event === 'delete') {
+                var url = '{:url("companyGameDel")}';
+                layer.confirm('删除后不可恢复！是否确定？',{icon:3}, function(){
+                    var loadAdd = layer.msg('提交中',{icon:16, time:0, shade: 0.1, offset:"15px"})
+                    $.post(url, {ids:[data.id]}, function(res){
+                        layer.close(loadAdd)
+                        if(  res.code === 0 ){
+                            table.reload(tableId)
+                            layer.msg(res.msg,{icon:6, offset: '15px'})
+                        }else {
+                            layer.msg(res.msg, {icon:5, offset: '15px'})
+                        }
+                    })
+                })
+            }
+        })
+        // 添加游戏
+        table.on('toolbar('+tableId+')', function(obj) {
+            if (obj.event === 'add') { // 添加
+                var url = '{:url("companyGameAdd")}';
+                var index = layer.open({
+                    title: '添加游戏',
+                    type: 2,
+                    shade: 0.2,
+                    maxmin: true,
+                    area: ['800px', '95%'],
+                    content: url,
+                    btnAlign: 'c',
+                    btn: ['确定', '取消'],
+                    yes: function(index, layero) {
+                        var iframeWindow = window['layui-layer-iframe' + index], 
+                        submit = layero.find('iframe').contents().find("#submitBtn");
+                        //监听提交
+                        iframeWindow.layui.form.on('submit(submitBtn)', function(data){
+                            var field = data.field;//获取提价的数据
+                            var loadAdd = layer.msg('提交中', {icon:16, time:0, shade:0.1, offset:'15px'});
+                            $.post(url, field, function(res){
+                                layer.close(loadAdd);
+                                if (res.code === 0) {
+                                    table.reload(tableId); //数据刷新
+                                    layer.close(index); //关闭弹层
+                                    layer.msg(res.msg, {icon: 6, offset: '15px'});
+                                } else {
+                                    layer.msg(res.msg, {icon: 5, offset: '15px'});
+                                }
+                            })
+                        })
+                        submit.trigger('click');
+                    }
+                })
+                $(window).on("resize", function () {
+                    layer.full(index);
+                });
+                return false;
+            }else if (obj.event === 'delete') {  // 监听删除操作
+                var checkStatus = table.checkStatus(obj.config.id)
+                    , data = checkStatus.data;
+                var data = checkStatus.data, id = [];
+                for (elem in data) {
+                    id.push(data[elem].id);
+                }
+                if (id.length === 0) {
+                    return layer.msg('请选择要删除的数据');
+                }
+                var url = '{:url("companyGameDel")}';
+                layer.confirm('删除后不可恢复！  是否确认? ', {icon: 3}, function () {
+                    var loadAdd = layer.msg('提交中', {icon: 16, time: 0, shade: 0.1, offset: '15px'});
+                    $.post(url, {ids: id}, function (res) {
+                        layer.close(loadAdd);
+                        if (res.code === 0) {
+                            table.reload(tableId); //数据刷新
+                            layer.msg(res.msg, {icon: 6, offset: '15px'});
+                        } else {
+                            layer.msg(res.msg, {icon: 5, offset: '15px'});
+                        }
+                    });
+                });
+            }
+        });
+        // 监听开关
+        form.on('switch(status)', function (obj) {
+            var url = '{:url("companyGameSwitch")}';
+            $.post(url, {id: obj.value, status:obj.elem.checked ? 1 : 2}, function (res) {
+                if (res.code === 0) {
+                    layer.msg(res.msg, {icon: 6, offset: '15px'});
+                } else {
+                    table.reload(tableId)
+                    layer.msg(res.msg, {icon: 5, offset: '15px'});
+                }
+            });
+        });
+    })
+</script>
+<script>
+
+        /**
+         *  资产状态统计图（饼图）数据来自固定资产条码表
+         */
+        /**
+         * 资产分类统计图（饼图）数据来自资产信息表
+         * AssetCate
+         */
+        /**
+         * 报表功能
+         */
+
+        /**
+         * AssetCate
+         */
+
+</script>
+{/block}
