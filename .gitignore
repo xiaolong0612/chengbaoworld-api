@@ -4,6 +4,7 @@
 .env
 runtime
 ip_white.txt
+/vendor
 /public/nginx.htaccess
 /public/storage/avatar
 /public/storage/home
