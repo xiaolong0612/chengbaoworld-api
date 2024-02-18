@@ -22,6 +22,7 @@ class StoreManagerRepository extends BaseRepository
         return Db::transaction(function () use ($data, $companyId) {
             $data['company_id'] = $companyId;
             $data['status'] = 1;
+            if(!isset($data['p_id'])) $data['p_id'] = 0;
             $info = $this->dao->create($data);
             return $info;
         });
