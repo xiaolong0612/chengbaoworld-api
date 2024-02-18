@@ -10,3 +10,4 @@ ip_white.txt
 /public/storage/ad_picture
 /public/storage/article
 vendor
+/public/.user.ini
