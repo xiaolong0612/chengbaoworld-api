@@ -26,9 +26,24 @@ class StoreManager extends Base
         return $this->success($this->repository->getDetail($agentId));
     }
 
+    //添加一级店长
     public function addManager()
     {
         $data = $this->request->param();
         return $this->success($this->repository->addInfo($this->request->companyId,$data));
+    }
+    //添加二级店长
+    public function addSecondManager(){
+        $data = $this->request->param();
+        if (!isset($data['p_id']) || $data['p_id']<=0)return $this->error('参数错误');
+        return $this->success($this->repository->addInfo($this->request->companyId,$data));
+    }
+
+    //修改店长信息
+    public function editManager()
+    {
+        $data = $this->request->param();
+        if(!$data['id']) return $this->error('参数错误');
+        return $this->success($this->repository->editInfo($data));
     }
 }
