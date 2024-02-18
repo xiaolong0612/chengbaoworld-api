@@ -22,16 +22,15 @@ class StoreManagerRepository extends BaseRepository
         return Db::transaction(function () use ($data, $companyId) {
             $data['company_id'] = $companyId;
             $data['status'] = 1;
-            if(!isset($data['p_id'])) $data['p_id'] = 0;
             $info = $this->dao->create($data);
             return $info;
         });
     }
 
-    public function editInfo($id, array $data)
+    public function editInfo(array $data)
     {
-        return Db::transaction(function () use ($data, $id) {
-            $res = $this->dao->update($id, $data);
+        return Db::transaction(function () use ($data) {
+            $res = $this->dao->update($data);
             return ($res);
         });
     }
