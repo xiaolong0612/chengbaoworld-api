@@ -175,6 +175,10 @@ $apiRoute = function () {
         Route::group('manager',function (){
             Route::get('getMyManagerInfo','/getMyManagerInfo');//店长信息
             Route::post('addManager','/addManager')->middleware(\app\http\middleware\api\CheckToken::class, true); // 新增代理
+            Route::post('addSecondManager','/addSecondManager'); // 新增二级代理
+            Route::post('editManager','/editManager'); // 修改店长信息
+
+
         })->prefix('api.agent.StoreManager');## 代理
         //
         Route::group('video',function (){
