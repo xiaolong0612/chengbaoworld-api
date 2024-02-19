@@ -180,6 +180,10 @@ $apiRoute = function () {
 
 
         })->prefix('api.agent.StoreManager');## 代理
+        //帮助中心
+        Route::group('help',function (){
+            Route::get('getHelpCenter','/getHelpCenter');//帮助中心列表
+        })->prefix('api.agent.HelpCenter');
         //
         Route::group('video',function (){
             Route::get('getList','/getList')->middleware(\app\http\middleware\api\CheckToken::class, true);//创建工会

@@ -30,7 +30,7 @@ class Base extends BaseController
      */
     protected function success($data = null, string $message = 'ok')
     {
-//            $encry = env('encry');
+//            $encry = .env('encry');
 //            $aes=new OpenAesService($encry['aesKey']);
 //            $data  = $aes->encryptData($data);
         return app('api_return')->success($data, $message);
