@@ -36,6 +36,7 @@ class StoreManager extends Base
     public function addSecondManager(){
         $data = $this->request->param();
         if (!isset($data['p_id']) || $data['p_id']<=0)return $this->error('参数错误');
+        if (!isset($data['user_id']) || $data['user_id']<=0)return $this->error('用户ID错误');
         return $this->success($this->repository->addInfo($this->request->companyId,$data));
     }
 
