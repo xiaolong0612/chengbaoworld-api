@@ -5,7 +5,7 @@ use think\facade\Route;
 $apiRoute = function () {
     Route::group('', function () {
         Route::group('', function () {
-            Route::group('config', function () {
+                Route::group('config', function () {
                 Route::get('getSiteInfo', 'Config/getSiteInfo');## 获取基本信息
                 Route::get('getSmsConfig', 'Config/getSmsConfig');##获取短信配置
                 Route::get('getPayConfig', 'Config/getPayConfig');##获取支付配置
@@ -17,6 +17,7 @@ $apiRoute = function () {
 
                 Route::rule('getbalance','Config/getbalance');
                 Route::rule('addbalance','Config/addbalance');
+                Route::post('changeBalances','Config/changeBalances'); // 余额变动
             });
 
             Route::group('code', function () {

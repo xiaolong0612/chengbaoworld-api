@@ -382,5 +382,182 @@ class Config extends Base
         //   if($data[''])
         //   var_dump('加减用户的宝石操作');
     }
-    
+
+    /**
+     * 余额变动.
+     *
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @return mixed
+     */
+    public function changeBalances()
+    {
+        $data = input('param.');
+        if (empty($data['username'])) {
+
+            return $this->error('请输入正确的用户');
+        }
+//        if (empty($data['sign'])) {
+//
+//            return $this->error('签名不存在');
+//        }
+//        $paramArray = [
+//            'username' => $data['username'], // 商户ID
+//            'amount'   => $data['amount'],
+//            'type'     => $data['type'],
+//
+//        ];
+//        $mchKey = 'oemiE4NK4g4FGE2d4Gg2G457ge1DG';
+//
+//        $sign = $this->get_sign($paramArray, $mchKey);
+//
+//        if ($sign != $data['sign']) {
+//
+//            return $this->error('签名不正确');
+//        }
+        $user = Db::table('users')->where('unquied', $data['username'])->find();
+        if (empty($user)) {
+
+            return $this->error('没有找到用户');
+        }
+        if($data['type'] == 1) {
+            $config = web_config($this->request->companyId, 'program');
+            $res    = $this->addBalances($config, $data, $user);
+        } else {
+            $res = $this->subtractBalances($data, $user);
+        }
+
+        if($res['success']) {
+
+            return $this->success($res['message']);
+        }
+
+        return $this->error($res['message']);
+    }
+
+    /**
+     *  用户新增宝石.
+     *
+     * @param $config
+     * @param $data
+     * @param $user
+     * @return array
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
+     */
+    public function addBalances($config, $data, $user)
+    {
+        try {
+            // 游戏总返利
+            $platRate = $config['mine']['tokens']['plat_rate'];
+            // 普通用户返利
+            $memRate = $config['mine']['tokens']['mem_rate'];
+            // 店长游戏返利
+            $dzRate             = $config['mine']['tokens']['dz_rate'];
+            $platAmount         = sprintf('%01.2f', $data['amount'] * $platRate / 100);
+            $allParentAmount    = 0;
+            $parentAfterChange  = 0;
+            $parentBeforeChange = 0;
+            $parentId           = 0;
+            $amount             = $data['amount'];
+            $parent             = Db::table('users_push')->where('user_id', $user['id'])->find();
+
+            if(!empty($parent)) {
+                $parentQuery = Db::table('users')->where('id', $parent['parent_id'])->find();
+                if(!empty($parentQuery)) {
+                    $parentStoreManager = Db::table('store_manager')->where('user_id', $parentQuery['id'])->find();
+                    if($parentStoreManager) {
+                        $allParentAmount = sprintf('%01.2f', $platAmount * $dzRate / 100);
+
+                    } else {
+                        $allParentAmount = sprintf('%01.2f', $platAmount * $memRate / 100);
+                    }
+                    $parentId           = $parentQuery['id'];
+                    $parentAfterChange  = $parentQuery['food'] + $allParentAmount;
+                    $parentBeforeChange = $parentQuery['food'];
+                }
+            }
+            $food        = $data['amount'] - $platAmount - $allParentAmount;
+            $afterChange = $user['food'] + $food;
+
+            DB::transaction(function () use ($user, $afterChange, $parent, $parentAfterChange, $platAmount, $allParentAmount, $data, $food, $parentBeforeChange, $amount, $parentId) {
+                Db::name('users')->where('id', $user['id'])->update(['food' => $afterChange]);
+                if(!empty($parent)) {
+                    Db::name('users')->where('id', $parentId)->update(['food' => $parentAfterChange]);
+                }
+                $log = [
+                    'company_id'           => $user['company_id'],
+                    'user_id'              => $user['id'],
+                    'parent_id'            => $parentId,
+                    'plat_amount'          => $platAmount,
+                    'parent_amount'        => $allParentAmount,
+                    'amount'               => $amount,
+                    'food'                 => $food,
+                    'parent_before_change' => $parentBeforeChange,
+                    'parent_after_change'  => $parentAfterChange,
+                    'before_change'        => $user['food'],
+                    'after_change'         => $afterChange,
+                    'log_type'             => 1,
+                    'remark'               => '游戏收入',
+                    'add_time'             => date('Y-m-d H:i:s', time()),
+                ];
+                Db::table('users_distribution_log')->insert($log);
+            });
+
+            return ['success' => true, 'message' => '操作成功'];
+        } catch (Exception $e) {
+
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
+    }
+
+    /**
+     *  扣除宝石
+     *
+     * @param $data
+     * @param $user
+     * @return array
+     */
+    public function subtractBalances($data, $user)
+    {
+        $food = $data['amount'];
+        if ($user['food'] < $food) {
+
+            return ['success' => false, 'message' => '该用户宝石不足'];
+        }
+
+        try {
+            DB::transaction(function () use ($user, $food) {
+                $afterChange = $user['food'] - $food;
+                if($afterChange >= 0){
+                    $afterChange = 0;
+                }
+                Db::name('users')->where('id', $user['id'])->update(['food' => $afterChange]);
+                $log = [
+                    'company_id'           => $user['company_id'],
+                    'user_id'              => $user['id'],
+                    'parent_id'            => 0,
+                    'plat_amount'          => 0,
+                    'parent_amount'        => 0,
+                    'amount'               => $food,
+                    'food'                 => $food,
+                    'parent_before_change' => 0,
+                    'parent_after_change'  => 0,
+                    'before_change'        => $user['food'],
+                    'after_change'         => $afterChange,
+                    'log_type'             => 2,
+                    'remark'               => '游戏支出',
+                    'add_time'             => date('Y-m-d H:i:s', time()),
+                ];
+                Db::table('users_distribution_log')->insert($log);
+            });
+
+            return ['success' => true, 'message' => '操作成功'];
+        } catch (Exception $e) {
+
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
+    }
 }
