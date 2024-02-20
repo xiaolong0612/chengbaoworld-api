@@ -416,7 +416,10 @@
                         <div class="layui-form-item">
                             <label class="layui-form-label required">任务配置</label>
                             <div class="layui-input-block">
-                                <input type="text" name="task[task_type]" value="{$info['task']['task_type'] ?? ''}" placeholder="任务配置 1全部 2满足一个任务" class="layui-input">
+                                <select name="task[task_type]">
+                                    <option value="1" {if isset($info['task']['task_type']) && $info['task']['task_type']==1}selected{/if}>全部任务</option>
+                                    <option value="2" {if isset($info['task']['task_type']) && $info['task']['task_type']==2}selected{/if}>满足一个任务</option>
+                                </select>
                             </div>
                         </div>
                     </div>
