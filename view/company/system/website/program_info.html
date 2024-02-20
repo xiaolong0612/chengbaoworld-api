@@ -65,6 +65,7 @@
                     <li>实名认证</li>
                     <li>微信登陆</li>
                     <li>任务配置</li>
+                    <li>店长配置</li>
                 </ul>
                 <div class="layui-tab-content">
                     <div class="layui-tab-item layui-show">
@@ -416,6 +417,15 @@
                             <label class="layui-form-label required">任务配置</label>
                             <div class="layui-input-block">
                                 <input type="text" name="task[task_type]" value="{$info['task']['task_type'] ?? ''}" placeholder="任务配置 1全部 2满足一个任务" class="layui-input">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="layui-tab-item">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label required">成为店长条件</label>
+                            <div class="layui-input-block">
+                                <input type="text" name="store_manager[card_num]" value="{$info['store_manager']['card_num'] ?? ''}" placeholder="拿卡数量" class="layui-input">
                             </div>
                         </div>
                     </div>
