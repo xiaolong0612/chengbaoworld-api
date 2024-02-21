@@ -496,7 +496,7 @@ class Config extends Base
                     'after_change'         => $afterChange,
                     'log_type'             => 1,
                     'remark'               => '游戏收入',
-                    'source'               => $data['source'],
+//                    'source'               => $data['source'],
                     'add_time'             => date('Y-m-d H:i:s', time()),
                 ];
                 Db::table('users_distribution_log')->insert($log);
@@ -545,7 +545,7 @@ class Config extends Base
                     'after_change'         => $afterChange,
                     'log_type'             => 2,
                     'remark'               => '游戏支出',
-                    'source'               => $data['source'],
+//                    'source'               => $data['source'],
                     'add_time'             => date('Y-m-d H:i:s', time()),
                 ];
                 Db::table('users_distribution_log')->insert($log);
