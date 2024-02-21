@@ -64,6 +64,8 @@
                     <li>更新配置</li>
                     <li>实名认证</li>
                     <li>微信登陆</li>
+                    <li>任务配置</li>
+                    <li>店长配置</li>
                 </ul>
                 <div class="layui-tab-content">
                     <div class="layui-tab-item layui-show">
@@ -362,7 +364,6 @@
                             </div>
                         </div>
                     </div>
-                    </div>
 
                     <div class="layui-tab-item">
                         <div class="layui-form-item">
@@ -407,6 +408,27 @@
                             <label class="layui-form-label required">APPSECRET</label>
                             <div class="layui-input-block">
                                 <input type="text" name="wechat[secret]" value="{$info['wechat']['secret'] ?? ''}" placeholder="请输入APPSECRET" class="layui-input">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="layui-tab-item">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label required">任务配置</label>
+                            <div class="layui-input-block">
+                                <select name="task[task_type]">
+                                    <option value="1" {if isset($info['task']['task_type']) && $info['task']['task_type']==1}selected{/if}>全部任务</option>
+                                    <option value="2" {if isset($info['task']['task_type']) && $info['task']['task_type']==2}selected{/if}>满足一个任务</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="layui-tab-item">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label required">成为店长条件</label>
+                            <div class="layui-input-block">
+                                <input type="text" name="store_manager[card_num]" value="{$info['store_manager']['card_num'] ?? ''}" placeholder="拿卡数量" class="layui-input">
                             </div>
                         </div>
                     </div>

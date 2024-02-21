@@ -270,6 +270,7 @@ $apiRoute = function () {
             Route::group('user/cert', function () {
                 Route::post('applyCert', '/applyCert');##申请个人认证
                 Route::get('userCertInfo', '/userCertInfo');##个人认证详情
+                Route::post('isFaceCert', '/isFaceCert');##是否已经实名
             })->prefix('api.user.UserCert');##实名认证
 
         })->middleware(\app\http\middleware\api\CheckToken::class, true);
