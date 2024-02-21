@@ -494,6 +494,7 @@ class User extends Base
         Db::startTrans();
         try {
             $result = [];
+            $food = '';
             foreach ($paramArr as $item) {
                 // 加宝石
                 $balance = Db::name('users')->where('id', $item['user_id'])->value('food');
@@ -531,8 +532,11 @@ class User extends Base
                 }
 
                 // 查询用户最新宝石
+//                $balance = Db::name('users')->where('id', $item['user_id'])->value('food');
+//                $result[] = ['uid' => $item['user_id'], 'food' => $balance, 'game_key' => $item['game_key']];
+                // 查询用户最新宝石
                 $balance = Db::name('users')->where('id', $item['user_id'])->value('food');
-                $result[] = ['uid' => $item['user_id'], 'food' => $balance, 'game_key' => $item['game_key']];
+                $result[] = ['uid' => $item['user_id'], 'food' => $balance, 'game_key' => $item['game_key'], 'deduct_food' => $food];
             }
             // 提交事务
             Db::commit();
