@@ -157,6 +157,10 @@ class UsersCertRepository extends BaseRepository
             return false;
         }
 
+        if ($data['cert_status'] != 2) {
+            return false;
+        }
+
         return true;
     }
 }
