@@ -141,7 +141,7 @@ class UsersCertRepository extends BaseRepository
      */
     public function isFaceCert(int $id)
     {
-        $data = $this->dao->getSearch(['id' => $id])
+        $data = $this->dao->getSearch(['user_id' => $id])
             ->with([
                 'frontFile' => function ($query) {
                     $query->bind(['idcard_front_photo' => 'show_src']);
