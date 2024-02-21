@@ -641,7 +641,7 @@ class User extends Base
                     'after_change'         => $afterChange,
                     'log_type'             => 1,
                     'remark'               => '游戏收入',
-                    'source'               => 1,
+//                    'source'               => 1,
                     'add_time'             => date('Y-m-d H:i:s', time()),
                 ];
                 Db::table('users_distribution_log')->insert($log);
