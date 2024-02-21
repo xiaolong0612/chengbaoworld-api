@@ -507,9 +507,9 @@ class User extends Base
                 $user_update_data = ['food' => $afterBalance];
 
                 $user_update = Db::name('users')->where('id', $item['user_id'])->update($user_update_data);
-                if (!$user_update) {
-                    return $this->error('修改用户表失败，请重试');
-                }
+//                if (!$user_update) {
+//                    return $this->error('修改用户表失败，请重试');
+//                }
 
                 // 获取用户信息
                 $userInfo = Db::name('users')->where('id', $item['user_id'])->find();
