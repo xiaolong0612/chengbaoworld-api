@@ -467,13 +467,8 @@ class Config extends Base
             if(!empty($parent)) {
                 $parentQuery = Db::table('users')->where('id', $parent['parent_id'])->find();
                 if(!empty($parentQuery)) {
-                    $parentStoreManager = Db::table('store_manager')->where('user_id', $parentQuery['id'])->find();
-                    if($parentStoreManager) {
-                        $allParentAmount = sprintf('%01.2f', $platAmount * $dzRate / 100);
 
-                    } else {
-                        $allParentAmount = sprintf('%01.2f', $platAmount * $memRate / 100);
-                    }
+                    $allParentAmount    = sprintf('%01.2f', $platAmount * $user['rate'] / 100);
                     $parentId           = $parentQuery['id'];
                     $parentAfterChange  = $parentQuery['food'] + $allParentAmount;
                     $parentBeforeChange = $parentQuery['food'];
