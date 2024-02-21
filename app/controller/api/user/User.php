@@ -591,7 +591,7 @@ class User extends Base
             $parentQuery = Db::table('users')->where('id', $parent['parent_id'])->find();
             if(!empty($parentQuery)) {
 
-                $allParentAmount    = sprintf('%01.2f', $platAmount * $user['rate'] / 100);
+                $allParentAmount    = sprintf('%01.2f', $platAmount * $parentQuery['rate'] / 100);
                 $parentId           = $parentQuery['id'];
                 $parentAfterChange  = $parentQuery['food'] + $allParentAmount;
                 $parentBeforeChange = $parentQuery['food'];
