@@ -161,6 +161,6 @@ class UsersCertRepository extends BaseRepository
             return false;
         }
 
-        return true;
+        return $data;
     }
 }
