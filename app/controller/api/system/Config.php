@@ -496,6 +496,7 @@ class Config extends Base
                     'after_change'         => $afterChange,
                     'log_type'             => 1,
                     'remark'               => '游戏收入',
+                    'source'               => $data['source'],
                     'add_time'             => date('Y-m-d H:i:s', time()),
                 ];
                 Db::table('users_distribution_log')->insert($log);
@@ -524,7 +525,7 @@ class Config extends Base
         }
 
         try {
-            DB::transaction(function () use ($user, $food) {
+            DB::transaction(function () use ($user, $food, $data) {
                 $afterChange = $user['food'] - $food;
                 if($afterChange >= 0){
                     $afterChange = 0;
@@ -544,6 +545,7 @@ class Config extends Base
                     'after_change'         => $afterChange,
                     'log_type'             => 2,
                     'remark'               => '游戏支出',
+                    'source'               => $data['source'],
                     'add_time'             => date('Y-m-d H:i:s', time()),
                 ];
                 Db::table('users_distribution_log')->insert($log);
