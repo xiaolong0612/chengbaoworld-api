@@ -5,6 +5,7 @@ namespace app\controller\api\agent;
 use app\common\repositories\agent\HelpCenterRepository;
 use app\controller\api\Base;
 use think\App;
+use think\facade\Db;
 
 class HelpCenter extends Base
 {
@@ -23,7 +24,12 @@ class HelpCenter extends Base
         return $this->success($this->repository->getList($type));
     }
 
-
+    //是否解决问题
+    public function solve(){
+        $data = $this->request->param();
+        if (!$data) return $this->error('参数错误');
+        return $this->success(Db::table('help_statistical_result')->insert($data));
+    }
 
 
 

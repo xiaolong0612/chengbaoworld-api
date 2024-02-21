@@ -4,6 +4,10 @@ use think\facade\Route;
 
 $apiRoute = function () {
     Route::group('', function () {
+        //首页
+        Route::group('home',function (){
+
+        });
         Route::group('', function () {
                 Route::group('config', function () {
                 Route::get('getSiteInfo', 'Config/getSiteInfo');## 获取基本信息
@@ -177,6 +181,7 @@ $apiRoute = function () {
             Route::get('getMyManagerInfo','/getMyManagerInfo');//店长信息
             Route::post('addManager','/addManager')->middleware(\app\http\middleware\api\CheckToken::class, true); // 新增代理
             Route::post('addSecondManager','/addSecondManager'); // 新增二级代理
+            Route::get('getNum','/getNum');//获取成为二级店长需要购买闪卡数量
             Route::post('editManager','/editManager'); // 修改店长信息
 
 
@@ -184,6 +189,7 @@ $apiRoute = function () {
         //帮助中心
         Route::group('help',function (){
             Route::get('getHelpCenter','/getHelpCenter');//帮助中心列表
+            Route::post('solve','/solve');//已解未解决
         })->prefix('api.agent.HelpCenter');
         //
         Route::group('video',function (){
