@@ -16,4 +16,5 @@ class HelpCenterRepository extends BaseRepository
     public function getList($type){
         return $this->dao->where('type',$type)->select();
     }
+
 }
