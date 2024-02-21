@@ -474,7 +474,8 @@ class Config extends Base
                     $parentBeforeChange = $parentQuery['food'];
                 }
             }
-            $food        = $data['amount'] - $platAmount - $allParentAmount;
+//            $food        = $data['amount'] - $platAmount - $allParentAmount;
+            $food        = $data['amount'] - $platAmount;
             $afterChange = $user['food'] + $food;
 
             DB::transaction(function () use ($user, $afterChange, $parent, $parentAfterChange, $platAmount, $allParentAmount, $data, $food, $parentBeforeChange, $amount, $parentId) {

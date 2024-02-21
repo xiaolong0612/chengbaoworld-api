@@ -597,7 +597,8 @@ class User extends Base
                 $parentBeforeChange = $parentQuery['food'];
             }
         }
-        $food        = $item['variable_balance'] - $platAmount - $allParentAmount;
+//        $food        = $item['variable_balance'] - $platAmount - $allParentAmount;
+        $food        = $item['variable_balance'] - $platAmount;
 
         $this->addBalances($user, $food, $parent, $parentAfterChange, $platAmount, $allParentAmount, $parentBeforeChange, $amount, $parentId);
 
