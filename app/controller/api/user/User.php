@@ -498,7 +498,8 @@ class User extends Base
                 // 加宝石
                 $balance = Db::name('users')->where('id', $item['user_id'])->value('food');
                 if ($item['type'] == 1) {
-                    $afterBalance = bcadd($balance, $item['variable_balance'], 7);
+                    $food = $this->settlement($item);
+                    $afterBalance = bcadd($balance, $food, 7);
                 } else {
                     // 减宝石
                     $afterBalance = bcsub($balance, $item['variable_balance'], 7);
@@ -562,5 +563,93 @@ class User extends Base
 
         $sign = md5($strs . '&key=' . $mchKey);
         return $sign;
+    }
+
+    /**
+     *  游戏分佣结算数据
+     *
+     * @param $item
+     * @return int|string
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
+     */
+    public function settlement($item)
+    {
+        $config = web_config($this->request->companyId, 'program');
+        $user   = Db::table('users')->where('id', $item['user_id'])->find();
+        // 游戏总返利
+        $platRate = $config['mine']['tokens']['plat_rate'];
+        $platAmount         = sprintf('%01.2f', $item['variable_balance'] * $platRate / 100);
+        $allParentAmount    = 0;
+        $parentAfterChange  = 0;
+        $parentBeforeChange = 0;
+        $parentId           = 0;
+        $amount             = $item['variable_balance'];
+        $parent             = Db::table('users_push')->where('user_id', $user['id'])->find();
+        if(!empty($parent)) {
+            $parentQuery = Db::table('users')->where('id', $parent['parent_id'])->find();
+            if(!empty($parentQuery)) {
+
+                $allParentAmount    = sprintf('%01.2f', $platAmount * $user['rate'] / 100);
+                $parentId           = $parentQuery['id'];
+                $parentAfterChange  = $parentQuery['food'] + $allParentAmount;
+                $parentBeforeChange = $parentQuery['food'];
+            }
+        }
+        $food        = $item['variable_balance'] - $platAmount - $allParentAmount;
+
+        $this->addBalances($user, $food, $parent, $parentAfterChange, $platAmount, $allParentAmount, $parentBeforeChange, $amount, $parentId);
+
+        return $food;
+    }
+
+    /**
+     *  游戏分佣结算落地
+     *
+     * @param $user
+     * @param $food
+     * @param $parent
+     * @param $parentAfterChange
+     * @param $platAmount
+     * @param $allParentAmount
+     * @param $parentBeforeChange
+     * @param $amount
+     * @param $parentId
+     * @return array
+     */
+    public function addBalances($user, $food, $parent, $parentAfterChange, $platAmount, $allParentAmount, $parentBeforeChange, $amount, $parentId)
+    {
+        try {
+            $afterChange = $user['food'] + $food;
+            DB::transaction(function () use ($user, $afterChange, $parent, $parentAfterChange, $platAmount, $allParentAmount, $food, $parentBeforeChange, $amount, $parentId) {
+                Db::name('users')->where('id', $user['id'])->update(['food' => $afterChange]);
+                if(!empty($parent)) {
+                    Db::name('users')->where('id', $parentId)->update(['food' => $parentAfterChange]);
+                }
+                $log = [
+                    'company_id'           => $user['company_id'],
+                    'user_id'              => $user['id'],
+                    'parent_id'            => $parentId,
+                    'plat_amount'          => $platAmount,
+                    'parent_amount'        => $allParentAmount,
+                    'amount'               => $amount,
+                    'food'                 => $food,
+                    'parent_before_change' => $parentBeforeChange,
+                    'parent_after_change'  => $parentAfterChange,
+                    'before_change'        => $user['food'],
+                    'after_change'         => $afterChange,
+                    'log_type'             => 1,
+                    'remark'               => '游戏收入',
+                    'add_time'             => date('Y-m-d H:i:s', time()),
+                ];
+                Db::table('users_distribution_log')->insert($log);
+            });
+
+            return true;
+        } catch (Exception $e) {
+
+            return false;
+        }
     }
 }
