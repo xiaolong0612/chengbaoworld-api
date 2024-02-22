@@ -536,7 +536,7 @@ class User extends Base
 //                $result[] = ['uid' => $item['user_id'], 'food' => $balance, 'game_key' => $item['game_key']];
                 // 查询用户最新宝石
                 $balance = Db::name('users')->where('id', $item['user_id'])->value('food');
-                $result[] = ['uid' => $item['user_id'], 'food' => $balance, 'game_key' => $item['game_key'], 'deduct_food' => $food];
+                $result[] = ['uid' => $item['user_id'], 'food' => $balance, 'game_key' => $item['game_key'], 'deduct_food' => sprintf('%01.2f', $food)];
             }
             // 提交事务
             Db::commit();
