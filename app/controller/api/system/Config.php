@@ -394,6 +394,8 @@ class Config extends Base
     public function changeBalances()
     {
         $data = input('param.');
+        return $this->success($data);
+
         if (empty($data['username'])) {
 
             return $this->error('请输入正确的用户');
@@ -580,9 +582,32 @@ class Config extends Base
         }
 
         $user = Db::table('users')->where('id', $data['uid'])->find();
+
         if (empty($user)) {
             return $this->error('没有找到用户');
         }
+
+        $parent          = Db::table('users_push')->where('user_id', $user['id'])->find();
+
+        if(!empty($parent)) {
+            $parentQuery = Db::table('users')->where('id', $parent['parent_id'])->find();
+            if(!empty($parentQuery)) {
+                $config = web_config($this->request->companyId, 'program');
+                // 普通用户返利
+                $memRate = $config['mine']['tokens']['mem_rate'];
+                if($data['rate'] > $parentQuery['rate']){
+                    return $this->error('修改下级分佣比例不对，请参照规则');
+                }
+                if($data['rate'] < $memRate){
+                    return $this->error('修改下级分佣比例不对，请参照规则');
+                }
+            } else {
+                return $this->error('当前用户没有权限修改佣金比例1');
+            }
+        } else {
+            return $this->error('当前用户没有权限修改佣金比例2');
+        }
+
 
         $res = Db::name('users')->where('id', $user['id'])->update(['rate' => $data['rate']]);
         if($res) {
