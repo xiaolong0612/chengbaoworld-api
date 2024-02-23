@@ -394,31 +394,30 @@ class Config extends Base
     public function changeBalances()
     {
         $data = input('param.');
-        return $this->success($data);
-
         if (empty($data['username'])) {
 
             return $this->error('请输入正确的用户');
         }
-//        if (empty($data['sign'])) {
-//
-//            return $this->error('签名不存在');
-//        }
-//        $paramArray = [
-//            'username' => $data['username'], // 商户ID
-//            'amount'   => $data['amount'],
-//            'type'     => $data['type'],
-//
-//        ];
-//        $mchKey = 'oemiE4NK4g4FGE2d4Gg2G457ge1DG';
-//
-//        $sign = $this->get_sign($paramArray, $mchKey);
-//
-//        if ($sign != $data['sign']) {
-//
-//            return $this->error('签名不正确');
-//        }
-        $user = Db::table('users')->where('unquied', $data['username'])->find();
+        if (empty($data['sign'])) {
+
+            return $this->error('签名不存在');
+        }
+        $paramArray = [
+            'username' => $data['username'], // 商户ID
+            'amount'   => $data['amount'],
+            'type'     => $data['type'],
+
+        ];
+        $mchKey = 'oemiE4NK4g4FGE2d4Gg2G457ge1DG';
+
+        $sign = $this->get_sign($paramArray, $mchKey);
+
+        if ($sign != $data['sign']) {
+
+            return $this->error('签名不正确');
+        }
+
+        $user = Db::table('users')->where('id', $data['username'])->find();
         if (empty($user)) {
 
             return $this->error('没有找到用户');
