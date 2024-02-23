@@ -30,6 +30,7 @@ class UserCert extends Base
         $param = $this->request->param([
             'username' => '',
             'number' => '',
+            'is_face' => '',
             'idcard_front_photo' => '',
             'idcard_back_photo' => '',
         ]);

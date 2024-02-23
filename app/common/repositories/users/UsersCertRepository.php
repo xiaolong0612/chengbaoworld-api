@@ -85,7 +85,6 @@ class UsersCertRepository extends BaseRepository
      */
     public function addCert($data, $userInfo, int $companyId = null)
     {
-        $data['is_face'] = 1;
         return Db::transaction(function () use ($data, $userInfo, $companyId) {
             /** @var UsersRepository $usersRepository */
             $usersRepository = app()->make(UsersRepository::class);
