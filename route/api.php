@@ -22,6 +22,7 @@ $apiRoute = function () {
                 Route::rule('getbalance','Config/getbalance');
                 Route::rule('addbalance','Config/addbalance');
                 Route::post('changeBalances','Config/changeBalances'); // 余额变动
+                Route::post('modifyCommissions','Config/modifyCommissions'); // 修改用户佣金
             });
 
             Route::group('code', function () {

@@ -558,4 +558,37 @@ class Config extends Base
             return ['success' => false, 'message' => $e->getMessage()];
         }
     }
+
+
+    /**
+     *  修改用户佣金.
+     *
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @return mixed|void
+     */
+    public function modifyCommissions()
+    {
+        $data = input('param.');
+        if (empty($data['uid'])) {
+            return $this->error('请输入正确的用户');
+        }
+
+        if (empty($data['rate'])) {
+            return $this->error('请输入正确的用户佣金');
+        }
+
+        $user = Db::table('users')->where('id', $data['uid'])->find();
+        if (empty($user)) {
+            return $this->error('没有找到用户');
+        }
+
+        $res = Db::name('users')->where('id', $user['id'])->update(['rate' => $data['rate']]);
+        if($res) {
+            return $this->success('操作成功');
+        }
+
+        return $this->error('操作失败');
+    }
 }
