@@ -468,11 +468,22 @@ class Config extends Base
             if(!empty($parent)) {
                 $parentQuery = Db::table('users')->where('id', $parent['parent_id'])->find();
                 if(!empty($parentQuery)) {
-
-                    $allParentAmount    = sprintf('%01.2f', $platAmount * $parentQuery['rate'] / 100);
-                    $parentId           = $parentQuery['id'];
-                    $parentAfterChange  = $parentQuery['food'] + $allParentAmount;
-                    $parentBeforeChange = $parentQuery['food'];
+                    $storeManager = Db::table('store_manager')->where('id', $parentQuery['id'])->find();
+                    if($storeManager){
+                        $storeManagerParent = Db::table('users')->where('id', $storeManager['p_id'])->find();
+                        if($storeManagerParent){
+                            // 二级店长
+                            $parentAmount     = sprintf('%01.2f', $platAmount * $parentQuery['rate'] / 100);
+                            // 一级店长
+                            $storeManagerParent  = sprintf('%01.2f', $platAmount * $storeManagerParent['rate'] / 100);
+                            $allParentAmount = sprintf('%01.2f', $storeManagerParent - $parentAmount);
+                        }
+                    } else {
+                        $allParentAmount    = sprintf('%01.2f', $platAmount * $parentQuery['rate'] / 100);
+                        $parentId           = $parentQuery['id'];
+                        $parentAfterChange  = $parentQuery['food'] + $allParentAmount;
+                        $parentBeforeChange = $parentQuery['food'];
+                    }
                 }
             }
 //            $food        = $data['amount'] - $platAmount - $allParentAmount;
@@ -601,10 +612,10 @@ class Config extends Base
                     return $this->error('修改下级分佣比例不对，请参照规则');
                 }
             } else {
-                return $this->error('当前用户没有权限修改佣金比例1');
+                return $this->error('当前用户没有权限修改佣金比例');
             }
         } else {
-            return $this->error('当前用户没有权限修改佣金比例2');
+            return $this->error('当前用户没有权限修改佣金比例');
         }
 
 
