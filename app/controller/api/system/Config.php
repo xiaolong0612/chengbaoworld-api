@@ -463,26 +463,28 @@ class Config extends Base
             $parentBeforeChange = 0;
             $parentId           = 0;
             $amount             = $data['amount'];
-            $parent             = Db::table('users_push')->where('user_id', $user['id'])->find();
+            $userStoreManager   = Db::table('store_manager')->where('user_id', $user['id'])->find();
 
-            if(!empty($parent)) {
-                $parentQuery = Db::table('users')->where('id', $parent['parent_id'])->find();
-                if(!empty($parentQuery)) {
-                    $storeManager = Db::table('store_manager')->where('id', $parentQuery['id'])->find();
-                    if($storeManager){
-                        $storeManagerParent = Db::table('users')->where('id', $storeManager['p_id'])->find();
-                        if($storeManagerParent){
-                            // 二级店长
-                            $parentAmount     = sprintf('%01.2f', $platAmount * $parentQuery['rate'] / 100);
-                            // 一级店长
-                            $storeManagerParent  = sprintf('%01.2f', $platAmount * $storeManagerParent['rate'] / 100);
-                            $allParentAmount = sprintf('%01.2f', $storeManagerParent - $parentAmount);
+            if(!empty($userStoreManager)) {
+                if($userStoreManager['p_id'] !== 0){
+                    $parentQuery = Db::table('users')->where('id', $userStoreManager['p_id'])->find();
+                    if(!empty($parentQuery)) {
+                        $storeManager = Db::table('store_manager')->where('user_id', $parentQuery['id'])->find();
+                        if($storeManager && $storeManager['p_id'] !== 0){
+                            $storeManagerParent = Db::table('users')->where('id', $storeManager['p_id'])->find();
+                            if($storeManagerParent){
+                                // 二级店长
+                                $parentAmount     = sprintf('%01.2f', $platAmount * $parentQuery['rate'] / 100);
+                                // 一级店长
+                                $storeManagerParent  = sprintf('%01.2f', $platAmount * $storeManagerParent['rate'] / 100);
+                                $allParentAmount = sprintf('%01.2f', $storeManagerParent - $parentAmount);
+                            }
+                        } else {
+                            $allParentAmount    = sprintf('%01.2f', $platAmount * $parentQuery['rate'] / 100);
+                            $parentId           = $parentQuery['id'];
+                            $parentAfterChange  = $parentQuery['food'] + $allParentAmount;
+                            $parentBeforeChange = $parentQuery['food'];
                         }
-                    } else {
-                        $allParentAmount    = sprintf('%01.2f', $platAmount * $parentQuery['rate'] / 100);
-                        $parentId           = $parentQuery['id'];
-                        $parentAfterChange  = $parentQuery['food'] + $allParentAmount;
-                        $parentBeforeChange = $parentQuery['food'];
                     }
                 }
             }
@@ -490,7 +492,7 @@ class Config extends Base
             $food        = $data['amount'] - $platAmount;
             $afterChange = $user['food'] + $food;
 
-            DB::transaction(function () use ($user, $afterChange, $parent, $parentAfterChange, $platAmount, $allParentAmount, $data, $food, $parentBeforeChange, $amount, $parentId) {
+            DB::transaction(function () use ($user, $afterChange, $userStoreManager, $parentAfterChange, $platAmount, $allParentAmount, $data, $food, $parentBeforeChange, $amount, $parentId) {
                 Db::name('users')->where('id', $user['id'])->update(['food' => $afterChange]);
                 if(!empty($parent)) {
                     Db::name('users')->where('id', $parentId)->update(['food' => $parentAfterChange]);
@@ -509,7 +511,7 @@ class Config extends Base
                     'after_change'         => $afterChange,
                     'log_type'             => 1,
                     'remark'               => '游戏收入',
-//                    'source'               => $data['source'],
+                    'source'               => $data['source'],
                     'add_time'             => date('Y-m-d H:i:s', time()),
                 ];
                 Db::table('users_distribution_log')->insert($log);
@@ -558,7 +560,7 @@ class Config extends Base
                     'after_change'         => $afterChange,
                     'log_type'             => 2,
                     'remark'               => '游戏支出',
-//                    'source'               => $data['source'],
+                    'source'               => $data['source'],
                     'add_time'             => date('Y-m-d H:i:s', time()),
                 ];
                 Db::table('users_distribution_log')->insert($log);
