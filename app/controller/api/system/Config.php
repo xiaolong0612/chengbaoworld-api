@@ -394,31 +394,30 @@ class Config extends Base
     public function changeBalances()
     {
         $data = input('param.');
-        return $this->success($data);
-
         if (empty($data['username'])) {
 
             return $this->error('请输入正确的用户');
         }
-//        if (empty($data['sign'])) {
-//
-//            return $this->error('签名不存在');
-//        }
-//        $paramArray = [
-//            'username' => $data['username'], // 商户ID
-//            'amount'   => $data['amount'],
-//            'type'     => $data['type'],
-//
-//        ];
-//        $mchKey = 'oemiE4NK4g4FGE2d4Gg2G457ge1DG';
-//
-//        $sign = $this->get_sign($paramArray, $mchKey);
-//
-//        if ($sign != $data['sign']) {
-//
-//            return $this->error('签名不正确');
-//        }
-        $user = Db::table('users')->where('unquied', $data['username'])->find();
+        if (empty($data['sign'])) {
+
+            return $this->error('签名不存在');
+        }
+        $paramArray = [
+            'username' => $data['username'], // 商户ID
+            'amount'   => $data['amount'],
+            'type'     => $data['type'],
+
+        ];
+        $mchKey = 'oemiE4NK4g4FGE2d4Gg2G457ge1DG';
+
+        $sign = $this->get_sign($paramArray, $mchKey);
+
+        if ($sign != $data['sign']) {
+
+            return $this->error('签名不正确');
+        }
+
+        $user = Db::table('users')->where('id', $data['username'])->find();
         if (empty($user)) {
 
             return $this->error('没有找到用户');
@@ -469,11 +468,22 @@ class Config extends Base
             if(!empty($parent)) {
                 $parentQuery = Db::table('users')->where('id', $parent['parent_id'])->find();
                 if(!empty($parentQuery)) {
-
-                    $allParentAmount    = sprintf('%01.2f', $platAmount * $parentQuery['rate'] / 100);
-                    $parentId           = $parentQuery['id'];
-                    $parentAfterChange  = $parentQuery['food'] + $allParentAmount;
-                    $parentBeforeChange = $parentQuery['food'];
+                    $storeManager = Db::table('store_manager')->where('id', $parentQuery['id'])->find();
+                    if($storeManager){
+                        $storeManagerParent = Db::table('users')->where('id', $storeManager['p_id'])->find();
+                        if($storeManagerParent){
+                            // 二级店长
+                            $parentAmount     = sprintf('%01.2f', $platAmount * $parentQuery['rate'] / 100);
+                            // 一级店长
+                            $storeManagerParent  = sprintf('%01.2f', $platAmount * $storeManagerParent['rate'] / 100);
+                            $allParentAmount = sprintf('%01.2f', $storeManagerParent - $parentAmount);
+                        }
+                    } else {
+                        $allParentAmount    = sprintf('%01.2f', $platAmount * $parentQuery['rate'] / 100);
+                        $parentId           = $parentQuery['id'];
+                        $parentAfterChange  = $parentQuery['food'] + $allParentAmount;
+                        $parentBeforeChange = $parentQuery['food'];
+                    }
                 }
             }
 //            $food        = $data['amount'] - $platAmount - $allParentAmount;
@@ -602,10 +612,10 @@ class Config extends Base
                     return $this->error('修改下级分佣比例不对，请参照规则');
                 }
             } else {
-                return $this->error('当前用户没有权限修改佣金比例1');
+                return $this->error('当前用户没有权限修改佣金比例');
             }
         } else {
-            return $this->error('当前用户没有权限修改佣金比例2');
+            return $this->error('当前用户没有权限修改佣金比例');
         }
 
 
