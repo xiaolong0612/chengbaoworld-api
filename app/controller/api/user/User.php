@@ -661,4 +661,11 @@ class User extends Base
             return false;
         }
     }
+    //注销账号
+    public function logoutAccount(){
+        $userId = $this->request->param('user_id',0);
+        if ($userId <= 0 ) $this->error('参数错误');
+        $res = Db::table('users')->destroy($userId);
+        return $this->success(['is_logout_account'=>$res?true:false]);
+    }
 }
