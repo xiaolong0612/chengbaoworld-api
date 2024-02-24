@@ -398,23 +398,26 @@ class Config extends Base
 
             return $this->error('请输入正确的用户');
         }
-        if (empty($data['sign'])) {
 
-            return $this->error('签名不存在');
-        }
-        $paramArray = [
-            'username' => $data['username'], // 商户ID
-            'amount'   => $data['amount'],
-            'type'     => $data['type'],
-            'source'     => $data['source']
-        ];
-        $mchKey = 'oemiE4NK4g4FGE2d4Gg2G457ge1DG';
+        if($data['source'] == 2){
+            if (empty($data['sign'])) {
 
-        $sign = $this->get_sign($paramArray, $mchKey);
+                return $this->error('签名不存在');
+            }
+            $paramArray = [
+                'username' => $data['username'], // 商户ID
+                'amount'   => $data['amount'],
+                'type'     => $data['type'],
+                'source'     => $data['source']
+            ];
+            $mchKey = 'oemiE4NK4g4FGE2d4Gg2G457ge1DG';
 
-        if ($sign != $data['sign']) {
+            $sign = $this->get_sign($paramArray, $mchKey);
 
-            return $this->error('签名不正确');
+            if ($sign != $data['sign']) {
+
+                return $this->error('签名不正确');
+            }
         }
 
         $user = Db::table('users')->where('id', $data['username'])->find();
@@ -465,10 +468,10 @@ class Config extends Base
             $parentId             = 0;
             $storeManagerParentId = 0;
             $amount               = $data['amount'];
-            $userStoreManager     = Db::table('user_push')->where('user_id', $user['id'])->where('levels', 1)->find();
+            $userStoreManager     = Db::table('users_push')->where('user_id', $user['id'])->where('levels', 1)->find();
 
             if(!empty($userStoreManager)) {
-                $parentQuery = Db::table('users')->where('id', $userStoreManager['p_id'])->find();
+                $parentQuery = Db::table('users')->where('id', $userStoreManager['parent_id'])->find();
                 if(!empty($parentQuery)) {
                     $storeManager = Db::table('store_manager')->where('user_id', $parentQuery['id'])->find();
                     if($storeManager) {
