@@ -463,26 +463,28 @@ class Config extends Base
             $parentBeforeChange = 0;
             $parentId           = 0;
             $amount             = $data['amount'];
-            $parent             = Db::table('users_push')->where('user_id', $user['id'])->find();
+            $userStoreManager   = Db::table('store_manager')->where('user_id', $user['id'])->find();
 
-            if(!empty($parent)) {
-                $parentQuery = Db::table('users')->where('id', $parent['parent_id'])->find();
-                if(!empty($parentQuery)) {
-                    $storeManager = Db::table('store_manager')->where('id', $parentQuery['id'])->find();
-                    if($storeManager){
-                        $storeManagerParent = Db::table('users')->where('id', $storeManager['p_id'])->find();
-                        if($storeManagerParent){
-                            // 二级店长
-                            $parentAmount     = sprintf('%01.2f', $platAmount * $parentQuery['rate'] / 100);
-                            // 一级店长
-                            $storeManagerParent  = sprintf('%01.2f', $platAmount * $storeManagerParent['rate'] / 100);
-                            $allParentAmount = sprintf('%01.2f', $storeManagerParent - $parentAmount);
+            if(!empty($userStoreManager)) {
+                if($userStoreManager['p_id'] !== 0){
+                    $parentQuery = Db::table('users')->where('id', $userStoreManager['p_id'])->find();
+                    if(!empty($parentQuery)) {
+                        $storeManager = Db::table('store_manager')->where('user_id', $parentQuery['id'])->find();
+                        if($storeManager && $storeManager['p_id'] !== 0){
+                            $storeManagerParent = Db::table('users')->where('id', $storeManager['p_id'])->find();
+                            if($storeManagerParent){
+                                // 二级店长
+                                $parentAmount     = sprintf('%01.2f', $platAmount * $parentQuery['rate'] / 100);
+                                // 一级店长
+                                $storeManagerParent  = sprintf('%01.2f', $platAmount * $storeManagerParent['rate'] / 100);
+                                $allParentAmount = sprintf('%01.2f', $storeManagerParent - $parentAmount);
+                            }
+                        } else {
+                            $allParentAmount    = sprintf('%01.2f', $platAmount * $parentQuery['rate'] / 100);
+                            $parentId           = $parentQuery['id'];
+                            $parentAfterChange  = $parentQuery['food'] + $allParentAmount;
+                            $parentBeforeChange = $parentQuery['food'];
                         }
-                    } else {
-                        $allParentAmount    = sprintf('%01.2f', $platAmount * $parentQuery['rate'] / 100);
-                        $parentId           = $parentQuery['id'];
-                        $parentAfterChange  = $parentQuery['food'] + $allParentAmount;
-                        $parentBeforeChange = $parentQuery['food'];
                     }
                 }
             }
