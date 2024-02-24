@@ -587,27 +587,55 @@ class User extends Base
         $user   = Db::table('users')->where('id', $item['user_id'])->find();
         // 游戏总返利
         $platRate = $config['mine']['tokens']['plat_rate'];
-        $platAmount         = sprintf('%01.2f', $item['variable_balance'] * $platRate / 100);
-        $allParentAmount    = 0;
-        $parentAfterChange  = 0;
-        $parentBeforeChange = 0;
-        $parentId           = 0;
-        $amount             = $item['variable_balance'];
-        $parent             = Db::table('users_push')->where('user_id', $user['id'])->find();
-        if(!empty($parent)) {
-            $parentQuery = Db::table('users')->where('id', $parent['parent_id'])->find();
+        $platAmount           = sprintf('%01.2f', $item['variable_balance'] * $platRate / 100);
+        $allParentAmount      = 0;
+        $parentAfterChange    = 0;
+        $parentBeforeChange   = 0;
+        $parentAmounts        = 0;
+        $parentId             = 0;
+        $storeManagerParentId = 0;
+        $amount               = $item['variable_balance'];
+        $userStoreManager     = Db::table('users_push')->where('user_id', $user['id'])->where('levels', 1)->find();
+        if(!empty($userStoreManager)) {
+            $parentQuery = Db::table('users')->where('id', $userStoreManager['parent_id'])->find();
             if(!empty($parentQuery)) {
+                $storeManager = Db::table('store_manager')->where('user_id', $parentQuery['id'])->find();
+                if($storeManager) {
+                    if($storeManager['p_id'] !== 0) {
+                        $storeManagerParent = Db::table('users')->where('id', $storeManager['p_id'])->find();
+                        if($storeManagerParent) {
+                            // 二级店长
+                            $parentAmount = sprintf('%01.2f', $platAmount * $parentQuery['rate'] / 100);
+                            // 一级店长
+                            $storeManagerParentAmount = sprintf('%01.2f', $platAmount * $storeManagerParent['rate'] / 100);
+                            $allParentAmount          = sprintf('%01.2f', $storeManagerParentAmount - $parentAmount);
+                            $storeManagerParentId     = $storeManager['p_id'];
+                            $parentAmounts            = $storeManagerParent['food'] + $parentAmount;
+                        }
+                        $parentId           = $parentQuery['id'];
+                        $parentAfterChange  = $parentQuery['food'] + $allParentAmount;
+                        $parentBeforeChange = $parentQuery['food'];
 
-                $allParentAmount    = sprintf('%01.2f', $platAmount * $parentQuery['rate'] / 100);
-                $parentId           = $parentQuery['id'];
-                $parentAfterChange  = $parentQuery['food'] + $allParentAmount;
-                $parentBeforeChange = $parentQuery['food'];
+                    } else {
+                        $allParentAmount    = sprintf('%01.2f', $platAmount * $parentQuery['rate'] / 100);
+                        $parentId           = $parentQuery['id'];
+                        $parentAfterChange  = $parentQuery['food'] + $allParentAmount;
+                        $parentBeforeChange = $parentQuery['food'];
+                    }
+                } else {
+                    $allParentAmount    = sprintf('%01.2f', $platAmount * $parentQuery['rate'] / 100);
+                    $parentId           = $parentQuery['id'];
+                    $parentAfterChange  = $parentQuery['food'] + $allParentAmount;
+                    $parentBeforeChange = $parentQuery['food'];
+                }
+
             }
         }
+
 //        $food        = $item['variable_balance'] - $platAmount - $allParentAmount;
         $food        = $item['variable_balance'] - $platAmount;
 
-        $this->addBalances($user, $food, $parent, $parentAfterChange, $platAmount, $allParentAmount, $parentBeforeChange, $amount, $parentId);
+        $this->addBalances($user, $food, $userStoreManager, $parentAfterChange, $platAmount, $allParentAmount, $parentBeforeChange, $amount, $parentId,$storeManagerParentId, $parentAmounts);
 
         return $food;
     }
@@ -624,16 +652,21 @@ class User extends Base
      * @param $parentBeforeChange
      * @param $amount
      * @param $parentId
-     * @return array
+     * @param $storeManagerParentId
+     * @param $parentAmounts
+     * @return bool
      */
-    public function addBalances($user, $food, $parent, $parentAfterChange, $platAmount, $allParentAmount, $parentBeforeChange, $amount, $parentId)
+    public function addBalances($user, $food, $parent, $parentAfterChange, $platAmount, $allParentAmount, $parentBeforeChange, $amount, $parentId, $storeManagerParentId,$parentAmounts)
     {
         try {
             $afterChange = $user['food'] + $food;
-            DB::transaction(function () use ($user, $afterChange, $parent, $parentAfterChange, $platAmount, $allParentAmount, $food, $parentBeforeChange, $amount, $parentId) {
+            DB::transaction(function () use ($user, $afterChange, $parent, $parentAfterChange, $platAmount, $allParentAmount, $food, $parentBeforeChange, $amount, $parentId, $storeManagerParentId,$parentAmounts) {
                 Db::name('users')->where('id', $user['id'])->update(['food' => $afterChange]);
-                if(!empty($parent)) {
+                if($parentId != 0) {
                     Db::name('users')->where('id', $parentId)->update(['food' => $parentAfterChange]);
+                }
+                if($storeManagerParentId != 0) {
+                    Db::name('users')->where('id', $storeManagerParentId)->update(['food' => $parentAmounts]);
                 }
                 $log = [
                     'company_id'           => $user['company_id'],
