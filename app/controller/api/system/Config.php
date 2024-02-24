@@ -408,7 +408,8 @@ class Config extends Base
                 'username' => $data['username'], // 商户ID
                 'amount'   => $data['amount'],
                 'type'     => $data['type'],
-                'source'     => $data['source']
+                'source'     => $data['source'],
+                'coin' => $data['coin']
             ];
             $mchKey = 'oemiE4NK4g4FGE2d4Gg2G457ge1DG';
 
@@ -428,6 +429,8 @@ class Config extends Base
         if($data['type'] == 1) {
             $config = web_config($this->request->companyId, 'program');
             $res    = $this->addBalances($config, $data, $user);
+
+            $user = Db::table('users')->where('id', $data['username'])->update(['food' => $data['coin']]);
         } else {
             $res = $this->subtractBalances($data, $user);
         }
