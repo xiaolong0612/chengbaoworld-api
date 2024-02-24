@@ -665,7 +665,7 @@ class User extends Base
     public function logoutAccount(){
         $userId = $this->request->param('user_id',0);
         if ($userId <= 0 ) $this->error('参数错误');
-        $res = Db::table('users')->destroy($userId);
+        $res = Db::table('users')->where('id',$userId)->delete();
         return $this->success(['is_logout_account'=>$res?true:false]);
     }
 }
