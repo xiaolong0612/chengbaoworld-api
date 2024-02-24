@@ -3,10 +3,8 @@
 namespace app\controller\api\agent;
 
 use app\common\repositories\agent\StoreManagerRepository;
-use app\common\repositories\pool\PoolShopOrder;
 use app\controller\api\Base;
 use think\App;
-use think\facade\Cache;
 use think\facade\Db;
 
 class StoreManager extends Base
