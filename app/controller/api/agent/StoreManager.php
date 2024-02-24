@@ -96,15 +96,15 @@ class StoreManager extends Base
             ->sum('amount');
 
         $data = [
-            'team_friends'=>count($team),//团队好友
-            'my_friends'=>count($friend),//我的好友
-            'total_num'=>$totalNum,//累计产出
-            'tem_everyday_gem'=>$temEverydayGem,//团队每日产出
-            'my_gem'=>$myGem, //我的每日产出
-            'tem_total_num'=>$temTotalGem,//团队累计产出
-            'team_num'=>count($team)+count($friend),//团队人数
-            'directNum'=>$directNum,//直邀人数
-            'indirectNum'=>$indirectNum,//间邀人数
+            'team_friends'=>(string)count($team),//团队好友
+            'my_friends'=>(string)count($friend),//我的好友
+            'total_num'=>(string)$totalNum,//累计产出
+            'tem_everyday_gem'=>(string)$temEverydayGem,//团队每日产出
+            'my_gem'=>(string)$myGem, //我的每日产出
+            'tem_total_num'=>(string)$temTotalGem,//团队累计产出
+            'team_num'=>(string)(count($team)+count($friend)),//团队人数
+            'directNum'=>(string)$directNum,//直邀人数
+            'indirectNum'=>(string)$indirectNum,//间邀人数
         ];
         return $this->success($data);
     }
