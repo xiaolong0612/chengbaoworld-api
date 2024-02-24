@@ -40,11 +40,13 @@ class Login extends Base
 
         $res = $repository->createToken($userInfo);
         $userInfo->session_id = $res;
+        $result = Db::table('store_manager')->where('user_id', $userInfo['id'])->find();
         // 用户登陆事件
         event('user.login', $userInfo);
         $data = [
             'token' => $res,
-            'userInfo' => $repository->showApiFilter($userInfo)
+            'userInfo' => $repository->showApiFilter($userInfo),
+            'is_manager'=>$result?true:false,
         ];
 
         api_user_log($userInfo['id'], 1, $this->request->companyId, '账号密码登录');
