@@ -83,13 +83,13 @@ class StoreManager extends Base
             ->sum('food');
 
         //团队每日产出
-        $temEverydayGem = Db::table('users_food_log')->whereIn('user_id',$team)
+        $temEverydayGem = Db::table('users_food_log')->whereIn('user_id',array_push($team,$userId))
             ->where('add_time','>',date('Y-m-d'))
             ->where('add_time','<',date('Y-m-d 23:59:59'))
             ->sum('amount');
         //团队累计产出
-        $temTotalGem = Db::table('users_food_log')->whereIn('user_id',$team)->sum('amount');
-        //我的产出
+        $temTotalGem = Db::table('users_food_log')->whereIn('user_id',array_push($team,$userId))->sum('amount');
+        //我的每日产出
         $myGem = Db::table('users_food_log')->where('user_id',$userId)
             ->where('add_time','>',date('Y-m-d'))
             ->where('add_time','<',date('Y-m-d 23:59:59'))
