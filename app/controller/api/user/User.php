@@ -343,10 +343,10 @@ class User extends Base
                 $data = $api . '?company-code=' . $this->request->companyId . '&token=' . $this->request->header()['token'];
             } else {
                 $game_balance_log = ['uid' => $userInfo['id'], 'game_type' => $key, 'username' => $username, 'before_balance' => $score, 'after_balance' => 0, 'balance_change' => 0, 'status' => 1, 'last_time' => date('Y-m-d H:i:s')];
-                $insert = Db::name('game_balance_log')->insert($game_balance_log);
-                if (!$insert) {
-                    return $this->error('添加到游戏记录表失败，请重试');
-                }
+//                $insert = Db::name('game_balance_log')->insert($game_balance_log);
+//                if (!$insert) {
+//                    return $this->error('添加到游戏记录表失败，请重试');
+//                }
                 $paramArray = array(
                     "uid" => $userInfo['id'],
                     "username" => $userInfo['id'],
@@ -393,50 +393,50 @@ class User extends Base
         }
         $key = $this->request->param('gamename');
         $game = Db::table('game')->where('gamename', $key)->find();
-        if (!empty($game)) {
-            $api = $game['game_api'];
-            $gameaname = $key;
-            if ($key !== 'dts') {
-                $game_balance_where = ['uid' => $userInfo['id'], 'game_type' => $gameaname, 'status' => 1];
-                $game_log = Db::name('game_balance_log')->where($game_balance_where)->order('id desc')->find();
-                if (empty($game_log)) {
-                    return $this->error('游戏记录表中无数据，请重试');
-                }
-                $paramArray = array(
-                    "username" => $userInfo['id'], //商户ID
-                );
-                $mchKey = $game['game_key'];
-                $paramArray['sign'] = $this->get_sign($paramArray, $mchKey);
-                $json_string = json_encode($paramArray);
-                $game_balance_where = ['uid' => $userInfo['id'], 'game_type' => $gameaname, 'id' => $game_log['id']];
-                $this->clearBalance($paramArray,$game_log,$userInfo,$api,$game_balance_where);
-            }
-            return $this->success([]);
-        } else {
-            $game_balance_where = ['uid' => $userInfo['id'], 'status' => 1];
-            // $game_log = Db::name('game_balance_log')->where($game_balance_where)->select()->toArray();
-            $game_log = Db::name('game_balance_log')->where($game_balance_where)->order('id desc')->find();
-            if (empty($game_log)) {
-                return $this->error('游戏记录表中无数据，请重试');
-            }else{
-            //     foreach ($game_log as $item){
-                    $paramArray = array(
-                        "username" => $userInfo['id'], //商户ID
-                    );
-                    $mchKey = $game_log['game_type'];
-                    $game = Db::table('game')->where('gamename', $mchKey)->find();
-                    $api = $game['game_api'];
-                    $paramArray['sign'] = $this->get_sign($paramArray, $mchKey);
-                    $curl = curl_init();
-
-                    $json_string = json_encode($paramArray);
-                    
-                    $game_balance_where = ['uid' => $userInfo['id'], 'status' => 1, 'id' => $game_log['id']];
-                    $this->clearBalance($paramArray,$game_log,$userInfo,$api,$game_balance_where);
-                    return $this->success([]);
-                // }
-            }
-        }
+//        if (!empty($game)) {
+//            $api = $game['game_api'];
+//            $gameaname = $key;
+//            if ($key !== 'dts') {
+////                $game_balance_where = ['uid' => $userInfo['id'], 'game_type' => $gameaname, 'status' => 1];
+////                $game_log = Db::name('game_balance_log')->where($game_balance_where)->order('id desc')->find();
+////                if (empty($game_log)) {
+////                    return $this->error('游戏记录表中无数据，请重试');
+////                }
+//                $paramArray = array(
+//                    "username" => $userInfo['id'], //商户ID
+//                );
+//                $mchKey = $game['game_key'];
+//                $paramArray['sign'] = $this->get_sign($paramArray, $mchKey);
+//                $json_string = json_encode($paramArray);
+//                $game_balance_where = ['uid' => $userInfo['id'], 'game_type' => $gameaname, 'id' => $game_log['id']];
+//                $this->clearBalance($paramArray,$game_log,$userInfo,$api,$game_balance_where);
+//            }
+//            return $this->success([]);
+//        } else {
+//            $game_balance_where = ['uid' => $userInfo['id'], 'status' => 1];
+//            // $game_log = Db::name('game_balance_log')->where($game_balance_where)->select()->toArray();
+//            $game_log = Db::name('game_balance_log')->where($game_balance_where)->order('id desc')->find();
+//            if (empty($game_log)) {
+//                return $this->error('游戏记录表中无数据，请重试');
+//            }else{
+//            //     foreach ($game_log as $item){
+//                    $paramArray = array(
+//                        "username" => $userInfo['id'], //商户ID
+//                    );
+//                    $mchKey = $game_log['game_type'];
+//                    $game = Db::table('game')->where('gamename', $mchKey)->find();
+//                    $api = $game['game_api'];
+//                    $paramArray['sign'] = $this->get_sign($paramArray, $mchKey);
+//                    $curl = curl_init();
+//
+//                    $json_string = json_encode($paramArray);
+//
+//                    $game_balance_where = ['uid' => $userInfo['id'], 'status' => 1, 'id' => $game_log['id']];
+//                    $this->clearBalance($paramArray,$game_log,$userInfo,$api,$game_balance_where);
+//                    return $this->success([]);
+//                // }
+//            }
+//        }
     }
     protected function clearBalance($paramArray,$game_log,$userInfo,$api,$game_balance_where){
         $curl = curl_init();
