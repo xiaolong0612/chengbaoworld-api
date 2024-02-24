@@ -48,4 +48,14 @@ class UsersPushDao extends BaseDao
     {
         return ($this->getModel())::getDB()->where('parent_id', $id)->column('user_id');
     }
+
+    public function getParentId($userId)
+    {
+        return ($this->getModel())::getDB()->where('user_id', $userId)->column('parent_id');
+    }
+
+    public function getMyFriendCount($userId)
+    {
+        return ($this->getModel())::getDB()->where('user_id', $userId)->count();
+    }
 }

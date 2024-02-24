@@ -4,10 +4,13 @@ use think\facade\Route;
 
 $apiRoute = function () {
     Route::group('', function () {
-        //首页
-        Route::group('home',function (){
+        //城堡世界
+        Route::group('castle',function (){
+            Route::get('nissanGemDetail','/nissanGemDetail');//日产宝石明细
+            Route::get('myFriend','/myFriend');//我的好友
+            Route::get('basicsMyWorker','/basicsMyWorker');//基础矿产（我的工人）
+        })->prefix('api.castle.castle');
 
-        });
         Route::group('', function () {
             Route::group('config', function () {
                 Route::get('getSiteInfo', 'Config/getSiteInfo');## 获取基本信息
@@ -182,7 +185,7 @@ $apiRoute = function () {
             Route::post('addSecondManager','/addSecondManager'); // 新增二级代理
             Route::get('getNum','/getNum');//获取成为二级店长需要购买闪卡数量
             Route::post('editManager','/editManager'); // 修改店长信息
-
+            Route::get('myTeam','/myTeam');//团队产出
 
         })->prefix('api.agent.StoreManager');## 代理
         //帮助中心
