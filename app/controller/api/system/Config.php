@@ -492,7 +492,7 @@ class Config extends Base
             $food        = $data['amount'] - $platAmount;
             $afterChange = $user['food'] + $food;
 
-            DB::transaction(function () use ($user, $afterChange, $parent, $parentAfterChange, $platAmount, $allParentAmount, $data, $food, $parentBeforeChange, $amount, $parentId) {
+            DB::transaction(function () use ($user, $afterChange, $userStoreManager, $parentAfterChange, $platAmount, $allParentAmount, $data, $food, $parentBeforeChange, $amount, $parentId) {
                 Db::name('users')->where('id', $user['id'])->update(['food' => $afterChange]);
                 if(!empty($parent)) {
                     Db::name('users')->where('id', $parentId)->update(['food' => $parentAfterChange]);
