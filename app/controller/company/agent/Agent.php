@@ -68,6 +68,21 @@ class Agent extends Base
             ]);
 
             try {
+                // 平台质押宝石数
+                $frozenNum = web_config($this->request->companyId,'mine')['tokens']['frozen_num'];
+                $userInfo = Db::name('users')->where('id',$param['uuid'])->find();
+                if($userInfo['food'] < $frozenNum) {
+                    return $this->error('店长质押宝石数不足');
+                }
+
+                // 修改用户质押宝石数
+                $upData = [
+                    'frozen_food' => $frozenNum,
+                    'food' => bcsub($userInfo['food'],$frozenNum,7),
+                ];
+
+                Db::name('users')->where('id',$param['uuid'])->update($upData);
+
                 $res = $this->repository->addInfo($this->request->companyId,$param);
                 company_user_log(4, '添加店长', $param);
                 if($res) {
