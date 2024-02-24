@@ -259,6 +259,7 @@ $apiRoute = function () {
                 // 2024-02-02 XT add
                 Route::get('gameLogin','/gameLogin');
                 Route::get('gameLoginOut','/gameLoginOut');
+                Route::post('logoutAccount','/logoutAccount');//注销账号
             })->prefix('api.user.User');##用户信息
             Route::group('order', function () {
                 Route::get('getList', '/getList');##订单列表
