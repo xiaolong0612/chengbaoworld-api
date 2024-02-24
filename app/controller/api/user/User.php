@@ -494,7 +494,6 @@ class User extends Base
         Db::startTrans();
         try {
             $result = [];
-            $food = '';
             foreach ($paramArr as $item) {
                 // 加宝石
                 $balance = Db::name('users')->where('id', $item['user_id'])->value('food');
@@ -503,6 +502,7 @@ class User extends Base
                     $afterBalance = bcadd($balance, $food, 7);
                 } else {
                     // 减宝石
+                    $food = '';
                     $afterBalance = bcsub($balance, $item['variable_balance'], 7);
                 }
                 $user_update_data = ['food' => $afterBalance];
