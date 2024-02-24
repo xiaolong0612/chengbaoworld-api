@@ -406,7 +406,7 @@ class Config extends Base
             'username' => $data['username'], // 商户ID
             'amount'   => $data['amount'],
             'type'     => $data['type'],
-
+            'source'     => $data['source']
         ];
         $mchKey = 'oemiE4NK4g4FGE2d4Gg2G457ge1DG';
 
@@ -461,7 +461,9 @@ class Config extends Base
             $allParentAmount    = 0;
             $parentAfterChange  = 0;
             $parentBeforeChange = 0;
+            $parentAmounts = 0;
             $parentId           = 0;
+            $storeManagerParentId           = 0;
             $amount             = $data['amount'];
             $userStoreManager   = Db::table('store_manager')->where('user_id', $user['id'])->find();
 
@@ -476,9 +478,14 @@ class Config extends Base
                                 // 二级店长
                                 $parentAmount     = sprintf('%01.2f', $platAmount * $parentQuery['rate'] / 100);
                                 // 一级店长
-                                $storeManagerParent  = sprintf('%01.2f', $platAmount * $storeManagerParent['rate'] / 100);
-                                $allParentAmount = sprintf('%01.2f', $storeManagerParent - $parentAmount);
+                                $storeManagerParentAmount  = sprintf('%01.2f', $platAmount * $storeManagerParent['rate'] / 100);
+                                $allParentAmount = sprintf('%01.2f', $storeManagerParentAmount - $parentAmount);
+                                $storeManagerParentId = $storeManagerParent['id'];
+                                $parentAmounts  = $storeManagerParent['food'] + $parentAmount;
                             }
+                            $parentId           = $parentQuery['id'];
+                            $parentAfterChange  = $parentQuery['food'] + $allParentAmount;
+                            $parentBeforeChange = $parentQuery['food'];
                         } else {
                             $allParentAmount    = sprintf('%01.2f', $platAmount * $parentQuery['rate'] / 100);
                             $parentId           = $parentQuery['id'];
@@ -492,10 +499,13 @@ class Config extends Base
             $food        = $data['amount'] - $platAmount;
             $afterChange = $user['food'] + $food;
 
-            DB::transaction(function () use ($user, $afterChange, $userStoreManager, $parentAfterChange, $platAmount, $allParentAmount, $data, $food, $parentBeforeChange, $amount, $parentId) {
+            DB::transaction(function () use ($user, $afterChange, $userStoreManager, $parentAfterChange, $platAmount, $allParentAmount, $data, $food, $parentBeforeChange, $amount, $parentId, $parentAmounts, $storeManagerParentId) {
                 Db::name('users')->where('id', $user['id'])->update(['food' => $afterChange]);
                 if(!empty($parent)) {
                     Db::name('users')->where('id', $parentId)->update(['food' => $parentAfterChange]);
+                }
+                if($storeManagerParentId != 0){
+                    Db::name('users')->where('id', $storeManagerParentId)->update(['food' => $parentAmounts]);
                 }
                 $log = [
                     'company_id'           => $user['company_id'],
