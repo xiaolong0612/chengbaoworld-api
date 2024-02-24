@@ -80,4 +80,9 @@ class StoreManagerRepository extends BaseRepository
         return compact('count', 'list');
     }
 
+    public function getLevelUserId($userId)
+    {
+        return $this->dao->where('p_id',$userId)->column('user_id');
+    }
+
 }

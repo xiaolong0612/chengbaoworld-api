@@ -49,4 +49,13 @@ class UsersFoodLogDao extends BaseDao
             });
         return $query;
     }
+
+    public function searchFood($id)
+    {
+        return UsersFoodLogModel::whereIn('user_id',$id)
+            ->where('add_time','>',date('Y-m-d'))
+            ->where('add_time','<',date('Y-m-d 23:59:59'))
+//            ->select();
+            ->sum('amount');
+    }
 }
