@@ -511,7 +511,7 @@ class Config extends Base
 
             DB::transaction(function () use ($user, $afterChange, $userStoreManager, $parentAfterChange, $platAmount, $allParentAmount, $data, $food, $parentBeforeChange, $amount, $parentId, $parentAmounts, $storeManagerParentId) {
                 Db::name('users')->where('id', $user['id'])->update(['food' => $afterChange]);
-                if(!empty($parent)) {
+                if($parentId != 0) {
                     Db::name('users')->where('id', $parentId)->update(['food' => $parentAfterChange]);
                 }
                 if($storeManagerParentId != 0) {
