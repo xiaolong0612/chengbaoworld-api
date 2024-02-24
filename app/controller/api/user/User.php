@@ -64,7 +64,10 @@ class User extends Base
     public function getUserInfo()
     {
         $this->gameLoginOut();
-        return app('api_return')->success($this->repository->showApiFilter($this->request->userInfo()));
+        $data = $this->repository->showApiFilter($this->request->userInfo());
+        $result = Db::table('store_manager')->where('user_id', $data['id'])->find();
+        $data['is_manager'] = $result?true:false;
+        return app('api_return')->success($data);
     }
 
     /**
