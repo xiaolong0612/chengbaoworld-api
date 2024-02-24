@@ -110,7 +110,7 @@ class MineUserRepository extends BaseRepository
         if ($data['type'] == 2) $query->where('level', '>', 1);
         $count = $query->count();
         $list = $query->page($page, $limit)
-            ->field('id,mine_id,product as total,rate as product,dispatch_count,status,get_time,total as alltotal')
+            ->field('id,mine_id,product as total,rate as product,dispatch_count,status,get_time,total as alltotal,add_time')
             ->with(['mineInfo' => function ($query)
             {
                 $query->field('id,name,file_id,output,level,day_output,output')->with(['fileInfo' => function ($query)
