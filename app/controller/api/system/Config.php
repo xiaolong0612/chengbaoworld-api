@@ -552,7 +552,7 @@ class Config extends Base
         try {
             DB::transaction(function () use ($user, $food, $data) {
                 $afterChange = $user['food'] - $food;
-                if($afterChange >= 0){
+                if($afterChange < 0){
                     $afterChange = 0;
                 }
                 Db::name('users')->where('id', $user['id'])->update(['food' => $afterChange]);
