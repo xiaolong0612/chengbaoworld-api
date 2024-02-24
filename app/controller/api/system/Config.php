@@ -483,7 +483,7 @@ class Config extends Base
                                 // 一级店长
                                 $storeManagerParentAmount = sprintf('%01.2f', $platAmount * $storeManagerParent['rate'] / 100);
                                 $allParentAmount          = sprintf('%01.2f', $storeManagerParentAmount - $parentAmount);
-                                $storeManagerParentId     = $storeManagerParent['id'];
+                                $storeManagerParentId     = $storeManager['p_id'];
                                 $parentAmounts            = $storeManagerParent['food'] + $parentAmount;
                             }
                             $parentId           = $parentQuery['id'];
