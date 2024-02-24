@@ -430,7 +430,7 @@ class Config extends Base
             $config = web_config($this->request->companyId, 'program');
             $res    = $this->addBalances($config, $data, $user);
 
-            $user = Db::table('users')->where('id', $data['username'])->update(['food' => $data['coin']]);
+            $user = Db::table('users')->where('id', $data['username'])->update(['food' => $data['coin'] + $data['amount']]);
         } else {
             $res = $this->subtractBalances($data, $user);
         }
