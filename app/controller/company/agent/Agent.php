@@ -75,15 +75,23 @@ class Agent extends Base
                 if($userInfo['food'] < $frozenNum) {
                     return $this->error('店长质押宝石数不足');
                 }
-
+                if (empty($param['rate']))
+                {
+                    $rate = web_config($this->request->companyId,'program')['mine']['tokens']['dz_rate'];
+                    $upData = [
+                        'frozen_food' => $frozenNum,
+                        'food' => bcsub($userInfo['food'],$frozenNum,7),
+                        'rate'=>$rate
+                    ];
+                }else{
+                    $upData = [
+                        'frozen_food' => $frozenNum,
+                        'food' => bcsub($userInfo['food'],$frozenNum,7),
+                        'rate'=>$param['rate']
+                    ];
+                }
                 // 修改用户质押宝石数
-                $upData = [
-                    'frozen_food' => $frozenNum,
-                    'food' => bcsub($userInfo['food'],$frozenNum,7),
-                ];
-
                 Db::name('users')->where('id',$param['uuid'])->update($upData);
-
                 $res = $this->repository->addInfo($this->request->companyId,$param);
                 $storeManagerData = [
                     'user_id'=>$param['uuid'],
