@@ -85,7 +85,12 @@ class Agent extends Base
                 Db::name('users')->where('id',$param['uuid'])->update($upData);
 
                 $res = $this->repository->addInfo($this->request->companyId,$param);
-                Db::table('store_manager')->create($param);
+                $storeManagerData = [
+                    'user_id'=>$param['uuid'],
+                    'manager_wx'=>$param['wechat'],
+                    'manager_qq'=>$param['qq'],
+                ];
+                Db::table('store_manager')->create($storeManagerData);
                 company_user_log(4, '添加店长', $param);
                 if($res) {
                     return $this->success('添加成功');
