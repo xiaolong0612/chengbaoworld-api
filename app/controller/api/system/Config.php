@@ -622,7 +622,7 @@ class Config extends Base
             return $this->error('没有找到用户');
         }
 
-        $parent = Db::table('users_push')->where(['user_id'=> $user['id'], 'level' => 1])->find();
+        $parent = Db::table('users_push')->where(['user_id'=> $user['id'], 'levels' => 1])->find();
 
         if(!empty($parent)) {
             $parentQuery = Db::table('users')->where('id', $parent['parent_id'])->find();
