@@ -50,6 +50,9 @@ class UserCert extends Base
 
 
         if ($info['personal_auth'] == 2) {
+            if(!empty($param['is_face'])){
+                return $this->repository->editFace($info['cert_id'], ['is_face'=>$param['is_face']]);
+            }
             return app('api_return')->success('审核成功，请勿重复提交');
         }
         if ($info['personal_auth'] == 1) {

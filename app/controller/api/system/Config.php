@@ -476,7 +476,7 @@ class Config extends Base
             if(!empty($userStoreManager)) {
                 $parentQuery = Db::table('users')->where('id', $userStoreManager['parent_id'])->find();
                 if(!empty($parentQuery)) {
-                    $storeManager = Db::table('store_manager')->where('user_id', $parentQuery['id'])->find();
+                    $storeManager = Db::table('store_manager')->where('user_id', $parentQuery['user_code'])->find();
                     if($storeManager) {
                         if($storeManager['p_id'] !== 0) {
                             $storeManagerParent = Db::table('users')->where('id', $storeManager['p_id'])->find();

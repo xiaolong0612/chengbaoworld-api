@@ -69,6 +69,10 @@ class UsersCertRepository extends BaseRepository
         return $this->dao->update($id, $data);
     }
 
+    public function editFace($id, array $data)
+    {
+        return $this->dao->update($id, $data);
+    }
 
     /**
      * 删除
