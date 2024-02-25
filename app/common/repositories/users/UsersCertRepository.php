@@ -98,6 +98,10 @@ class UsersCertRepository extends BaseRepository
                         throw new ValidateException('同身份证限制注册' . $configCertNum . ' 个用户账号');
                     }
                 }
+
+                if(!empty($data['is_face'])){
+                    $this->dao->update($certInfo['id'], ['is_face' => $data['is_face']]);
+                }
                 return $usersRepository->update($data['user_id'], [
                     'cert_id' => $certInfo['id']
                 ]);
