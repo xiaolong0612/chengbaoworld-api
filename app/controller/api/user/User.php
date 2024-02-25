@@ -65,7 +65,10 @@ class User extends Base
     {
         $this->gameLoginOut();
         $data = $this->repository->showApiFilter($this->request->userInfo());
-        $result = Db::table('store_manager')->where('user_id', $data['id'])->find();
+        $result = Db::table('agent')->where('uuid', $data['id'])->find();
+        if (!$result){
+            $result = Db::table('store_manager')->where('user_id', $data['id'])->find();
+        }
         $data['is_manager'] = $result?true:false;
         return app('api_return')->success($data);
     }
