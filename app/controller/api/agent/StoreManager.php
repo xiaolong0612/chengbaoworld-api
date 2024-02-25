@@ -63,46 +63,51 @@ class StoreManager extends Base
     {
         $userId = $this->request->param('user_id',0);
         if($userId <= 0) return $this->error('参数错误');
-        //团队好友
-        $team = $this->repository->getLevelUserId($userId);
+
         //我的好友
-        $friend = Db::table('users_push')->where('parent_id',$userId)->column('user_id,levels');
+        $friend = Db::table('users_push')->where('parent_id',$userId)
+            ->column('user_id,levels');
         $friendIds = [];
         //直邀好友
         $directNum = 0;
-        $indirectNum = 0;
         //间邀好友
+        $indirectNum = 0;
         foreach ($friend as $value)
         {
             if ($value['levels'] == 1) $directNum++;
             if ($value['levels'] == 2) $indirectNum++;
             array_push($friendIds,$value['user_id']);
         }
-        //累计产出宝石
-        $totalNum = Db::table('users')->whereIn('id',array_merge($team,$friendIds))
-            ->sum('food');
+        //累计产出宝石 所有好友矿产总和
+        $totalNum = Db::table('mine_user')->whereIn('uuid',$friendIds)
+            ->sum('product');
+        //我的矿场  我自己的矿场的总和
+        $myGem = Db::table('mine_user')->whereIn('uuid',$userId)
+            ->sum('product');
+        //我的分佣  前一天的分佣
+        $distribution = Db::table('users_distribution_log')
+            ->where('add_time','>',date('Y-m-d 00:00:00', strtotime('-1 day')))
+            ->where('add_time','<',date('Y-m-d 23:59:59', strtotime('-1 day')))
+            ->sum('amount');
+//            ->select();
+        $balance = Db::table('users_balance_log')
+            ->where('add_time','>',date('Y-m-d 00:00:00', strtotime('-1 day')))
+            ->where('add_time','<',date('Y-m-d 23:59:59', strtotime('-1 day')))
+            ->sum('amount');
 
-        //团队每日产出
-        $temEverydayGem = Db::table('users_food_log')->whereIn('user_id',array_push($team,$userId))
-            ->where('add_time','>',date('Y-m-d'))
-            ->where('add_time','<',date('Y-m-d 23:59:59'))
-            ->sum('amount');
         //团队累计产出
-        $temTotalGem = Db::table('users_food_log')->whereIn('user_id',array_push($team,$userId))->sum('amount');
-        //我的每日产出
-        $myGem = Db::table('users_food_log')->where('user_id',$userId)
-            ->where('add_time','>',date('Y-m-d'))
-            ->where('add_time','<',date('Y-m-d 23:59:59'))
-            ->sum('amount');
+        $temTotalGem = Db::table('mine_user')
+            ->whereIn('uuid',array_push($friendIds,$userId))
+            ->sum('product');
 
         $data = [
-            'team_friends'=>(string)count($team),//团队好友
-            'my_friends'=>(string)count($friend),//我的好友
+            'team_friends'=>(string)count($friend),//团队好友:
+            'my_friends'=>(string)$directNum,//我的好友
             'total_num'=>(string)$totalNum,//累计产出
-            'tem_everyday_gem'=>(string)$temEverydayGem,//团队每日产出
-            'my_gem'=>(string)$myGem, //我的每日产出
+            'tem_everyday_gem'=>(string)($distribution+$balance),//我的分佣
+            'my_gem'=>(string)$myGem, //我的矿场
             'tem_total_num'=>(string)$temTotalGem,//团队累计产出
-            'team_num'=>(string)(count($team)+count($friend)),//团队人数
+            'team_num'=>(string)count($friendIds),//团队人数
             'directNum'=>(string)$directNum,//直邀人数
             'indirectNum'=>(string)$indirectNum,//间邀人数
         ];
