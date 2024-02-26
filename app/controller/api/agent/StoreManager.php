@@ -86,11 +86,12 @@ class StoreManager extends Base
             ->sum('product');
         //我的分佣  前一天的分佣
         $distribution = Db::table('users_distribution_log')
+            ->where('user_id',$userId)
             ->where('add_time','>',date('Y-m-d 00:00:00', strtotime('-1 day')))
             ->where('add_time','<',date('Y-m-d 23:59:59', strtotime('-1 day')))
             ->sum('amount');
-//            ->select();
         $balance = Db::table('users_balance_log')
+            ->where('user_id',$userId)
             ->where('add_time','>',date('Y-m-d 00:00:00', strtotime('-1 day')))
             ->where('add_time','<',date('Y-m-d 23:59:59', strtotime('-1 day')))
             ->sum('amount');
