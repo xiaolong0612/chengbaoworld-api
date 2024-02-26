@@ -245,7 +245,10 @@ class User extends Base
         $data = $this->request->param(['user_code' => '', 'num' => '', 'pay_password' => '']);
         if (!$data['user_code']) return $this->error('请输入接收人!');
         if (!$data['num']) return $this->error('请输入数量!');
-
+        $cert = Db::table('users_cert')->where('id', $this->request->userInfo()['cert_id'])->order('id desc')->find();
+        if($cert['is_face'] == 0){
+            return $this->error('请先进行人脸认证');
+        }
         $has = Db::table('mine_giv_log')->where('uuid', $this->request->userInfo()['id'])->where('type', 1)->order('id desc')->find();
         if (!empty($has) && strtotime($has['create_at']) >= time() - 10) {
             return $this->error('操作太快,请稍后再试');
