@@ -4,13 +4,6 @@ use think\facade\Route;
 
 $apiRoute = function () {
     Route::group('', function () {
-        //城堡世界
-        Route::group('castle',function (){
-            Route::get('nissanGemDetail','/nissanGemDetail');//日产宝石明细
-            Route::get('myFriend','/myFriend');//我的好友
-            Route::get('basicsMyWorker','/basicsMyWorker');//基础矿产（我的工人）
-        })->prefix('api.castle.castle');
-
         Route::group('', function () {
                 Route::group('config', function () {
                 Route::get('getSiteInfo', 'Config/getSiteInfo');## 获取基本信息
