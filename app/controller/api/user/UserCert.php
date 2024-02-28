@@ -95,7 +95,7 @@ class UserCert extends Base
      */
     public function isFaceCert()
     {
-        $res = $this->repository->isFaceCert($this->request->userId());
+        $res = $this->repository->isFaceCert($this->request->userInfo()['cert_id']);
         if ($res === false) {
             return app('api_return')->error('暂无实名信息');
         }

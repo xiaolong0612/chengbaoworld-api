@@ -149,15 +149,7 @@ class UsersCertRepository extends BaseRepository
      */
     public function isFaceCert(int $id)
     {
-        $data = $this->dao->getSearch(['user_id' => $id])
-            ->with([
-                'frontFile' => function ($query) {
-                    $query->bind(['idcard_front_photo' => 'show_src']);
-                },
-                'backFile' => function ($query) {
-                    $query->bind(['idcard_back_photo' => 'show_src']);
-                }
-            ])
+        $data = $this->dao->getSearch(['id' => $id])
             ->hidden(['frontFile', 'backFile', 'front_file_id', 'back_file_id'])
             ->find();
 
@@ -166,6 +158,10 @@ class UsersCertRepository extends BaseRepository
         }
 
         if ($data['cert_status'] != 2) {
+            return false;
+        }
+
+        if ($data['is_face'] != 1) {
             return false;
         }
 
