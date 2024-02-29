@@ -49,6 +49,7 @@ $companyRoute = function () {
                 Route::rule('setBalance', '/setBalance')->name('companyUsersSetBalance');##设置用户余额
                 Route::rule('setIntegral', '/setIntegral')->name('companyUsersSetIntegral');##设置用户积分
                 Route::rule('billLog', '/billLog')->name('companyUsersBillLog');##用户日志
+                Route::rule('batchSetFrozen', '/batchSetFrozen')->name('companyUsersBatchSetFrozen');##批量设置冻结金额
                 Route::rule('batchSetBalance', '/batchSetBalance')->name('companyUsersBatchSetBalance');##批量设置余额
                 Route::rule('batchSetGroup', '/batchSetGroup')->name('companyUsersBatchSetGroup');##批量设置分组
                 Route::rule('batchSetLabel', '/batchSetLabel')->name('companyUsersBatchSetLabel');##批量设置标签

@@ -99,7 +99,7 @@ class Pool extends Base
 
 
     public function givLog(GivLogRepository $repository){
-        $data = $this->request->param(['page'=>'','limit'=>'','buy_type'=>1,'uuid'=>$this->request->userId(),'type'=>'']);
+        $data = $this->request->param(['page'=>'','limit'=>'','buy_type'=>1,'type'=>'']);
         [$page,$limit] = $this->getPage();
         return $this->success($repository->getApiList($data,$data['type'],$page,$limit,$this->request->companyId,$this->request->userId()));
     }

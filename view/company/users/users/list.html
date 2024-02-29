@@ -58,6 +58,7 @@
             <div class="layui-btn-container">
                 {if $addAuth}<button class="layui-btn layui-btn-normal layui-btn-sm data-add-btn" lay-event="add"> 创建用户 </button>{/if}
                 {if $batchSetBalanceAuth}<button class="layui-btn layui-btn-normal layui-btn-sm data-add-btn" lay-event="batchsetBalance"> {$tokens}设置 </button>{/if}
+                <button class="layui-btn layui-btn-normal layui-btn-sm data-add-btn" lay-event="batchsetFrozenBalance"> 冻结宝石 </button>
                 {if $givePoolAuth}<button class="layui-btn layui-btn-normal layui-btn-sm data-add-btn" lay-event="batchGivePool"> 卡片空投 </button>{/if}
 <!--                {if $givePropAuth<button class="layui-btn layui-btn-normal layui-btn-sm data-add-btn" lay-event="batchProp"> 道具空投 </button>{/if}-->
                 {if $delAuth}<button class="layui-btn layui-btn-danger layui-btn-sm data-add-btn" lay-event="batchSetDelete"> 删除 </button>{/if}
@@ -98,6 +99,7 @@
                 {field: 'regist_ip', width: 150, title: '注册IP'},
                 {field: 'mobile', width: 130, title: '用户账号',sort: true},
                 {field: 'food', width: 108, title: '余额',sort: true},
+                {field: 'frozen_food', width: 108, title: '冻结宝石',sort: true},
                 {field: 'zt_num', width: 108, title: '邀请人数',sort: true},
                 {field: 'pool_count', width: 108, title: '持有卡牌',sort: true},
                   {field: 'city_num', width: 108, title: '持有城堡',sort: true},
@@ -222,7 +224,37 @@
                     }
                 })
                 return false;
-            } else if (obj.event === 'batchSetIntegral') { // 批量设置积分
+            } else if (obj.event === 'batchsetFrozenBalance'){
+                var checkStatus = table.checkStatus(obj.config.id), data = checkStatus.data;
+                var data = checkStatus.data, id = [];
+                for (elem in data) {
+                    id.push(data[elem].id);
+                }
+                if (id.length === 0) {
+                    return layer.msg('请选择要设置余额的用户');
+                }
+                var url = '{:url("companyUsersBatchSetFrozen")}';
+                var index = parent.layer.open({title: '批量设置冻结金额', type: 2,shade: 0.2,maxmin: true, area: ['500px','400px'],content: url, btnAlign: 'c',btn: ['确定', '取消'], yes: function(index, layero) {
+                        var iframeWindow = parent.window['layui-layer-iframe' + index],submit = layero.find('iframe').contents().find("#submitBtn");
+                        iframeWindow.layui.form.on('submit(submitBtn)', function(data){
+                            var field = data.field;//获取提价的数据
+                            var loadAdd = parent.layer.msg('提交中', {icon:16, time:0, shade:0.1, offset:'15px'});
+                            $.post(url,{id:id, type:field.type, amount:field.amount}, function(res){
+                                parent.layer.close(loadAdd);
+                                if (res.code === 0) {
+                                    table.reload(tableId); //数据刷新
+                                    parent.layer.close(index); //关闭弹层
+                                    parent.layer.msg(res.msg, {icon: 6, offset: '15px'});
+                                } else {
+                                    parent.layer.msg(res.msg, {icon: 5, offset: '15px'});
+                                }
+                            })
+                        })
+                        submit.trigger('click');
+                    }
+                })
+                return false;
+            }else if (obj.event === 'batchSetIntegral') { // 批量设置积分
                 var checkStatus = table.checkStatus(obj.config.id) , data = checkStatus.data;
                 var data = checkStatus.data, id = [];
                 for (elem in data) {

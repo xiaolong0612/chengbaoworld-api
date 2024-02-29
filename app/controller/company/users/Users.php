@@ -483,7 +483,66 @@ class Users extends Base
         }
     }
 
-
+    public function setFrozenBalance()
+    {
+        $id = (int)$this->request->param('id');
+        if (!$id) {
+            return $this->error('参数错误');
+        }
+        if (!$this->repository->exists($id)) {
+            return $this->error('数据不存在');
+        }
+        $info = $this->repository->get($id);
+        if (!$info) {
+            return $this->error('信息错误');
+        }
+        if ($this->request->isPost()) {
+            $param = $this->request->param([
+                'type' => '',
+                'amount' => '',
+                'remark' => ''
+            ]);
+            if ($param['amount'] <= 0) {
+                return $this->error('金额必须大于0');
+            }
+            try {
+                $this->repository->balanceChange($id, 1, ($param['type'] == 2 ? '-' : '') . $param['amount'], [
+                    'remark' => $param['remark']
+                ],1);
+                company_user_log(3, '调整用户余额 id:' . $info['id'], $param);
+                return $this->success('设置成功');
+            } catch (\Exception $e) {
+                return $this->error('网络错误');
+            }
+        } else {
+            return $this->fetch('users/users/set_balance');
+        }
+    }
+    public function batchSetFrozen()
+    {
+        $id = (array)$this->request->param('id');
+        if ($this->request->isPost()) {
+            $param = $this->request->param([
+                'type' => '',
+                'amount' => '',
+                'remark' => ''
+            ]);
+            if ($param['amount'] <= 0) {
+                return $this->error('金额必须大于0');
+            }
+            try {
+                $this->repository->batchFrozenChange($id, 1, ($param['type'] == 2 ? '-' : '') . $param['amount'], [
+                    'remark' => $param['remark']
+                ],1);
+                company_user_log(3, '批量调整用户冻结金额 id:' . implode(',', $id), $param);
+                return $this->success('设置成功');
+            } catch (\Exception $e) {
+                return $this->error('网络错误');
+            }
+        } else {
+            return $this->fetch('users/users/set_balance');
+        }
+    }
     public function pushCountList(UsersPushRepository $repository)
     {
         if ($this->request->isAjax()) {

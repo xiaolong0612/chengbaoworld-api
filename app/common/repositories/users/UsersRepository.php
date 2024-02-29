@@ -331,6 +331,25 @@ class UsersRepository extends BaseRepository {
         }
 
     }
+    public function batchFrozenChange($userId, $type, $amount, $data = [], $trackPort = 1) {
+        $userInfo = $this->dao->selectWhere([
+            ['id', 'in', $userId]
+        ]);
+        if ($userInfo) {
+            foreach ($userInfo as $k => $v) {
+                $beforeChange[] = $v->food ?: 0.00;
+                $v->food = bcadd($v->food, -$amount, 7);
+                $v->frozen_food = bcadd($v->frozen_food, $amount, 7);
+                $v->save();
+                $afterChange[] = $v->food;
+            }
+            /**
+             * @var UsersFoodLogRepository $usersFoodLogRepository
+             */
+            $usersFoodLogRepository = app()->make(UsersFoodLogRepository::class);
+            return $usersFoodLogRepository->batchAddLog($userInfo, $amount, $type, $data, $beforeChange, $afterChange, $trackPort);
+        }
+    }
     /**
      * 生成随机用户名
      * 2021年5月10日 13:54:39
