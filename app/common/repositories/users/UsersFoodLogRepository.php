@@ -162,7 +162,11 @@ class UsersFoodLogRepository extends BaseRepository
                 $query->whereIn('log_type',[1,2,4]);
                 break;
             case 2:
-                $query->whereIn('log_type',[3,5]);
+                $wheres[] = ['log_type', '=', 3];
+                $wheres[] = ['remark', '=', '转赠手续费'];
+                $query->where(function ($query) use ($wheres) {
+                    $query->whereOr($wheres);
+                });
                 break;
             case 3:
                 $query->where('log_type',5);

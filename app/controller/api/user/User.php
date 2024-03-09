@@ -242,7 +242,7 @@ class User extends Base
 
     public function givTokens(UsersRepository $repository)
     {
-        return $this->error('转赠维护中...');
+        // return $this->error('转赠维护中...');
         $data = $this->request->param(['user_code' => '', 'num' => '', 'pay_password' => '']);
         if (!$data['user_code']) return $this->error('请输入接收人!');
         if (!$data['num']) return $this->error('请输入数量!');
