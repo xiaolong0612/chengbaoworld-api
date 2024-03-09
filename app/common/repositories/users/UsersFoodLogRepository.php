@@ -180,6 +180,9 @@ class UsersFoodLogRepository extends BaseRepository
             ->select();
         foreach ($list as $v) {
             $v['log_type'] = self::LOG_TYPE[$v['log_type']] ?? '';
+            if($type == 3){
+                $v['amount'] = str_replace("-", "", $v['amount']);
+            }
         }
 
         return compact('count', 'list');

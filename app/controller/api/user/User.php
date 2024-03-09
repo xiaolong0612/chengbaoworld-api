@@ -357,6 +357,7 @@ class User extends Base
                 $paramArray = array(
                     "uid" => $userInfo['id'],
                     "username" => $userInfo['id'],
+                    "usernameStr" => $userInfo['nickname'],
                     "gamename" => $gameaname,
                     "avatar" => $userInfo['avatar'],// 头像
                     'score' => $score//宝石
