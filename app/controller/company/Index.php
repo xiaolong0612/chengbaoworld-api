@@ -121,33 +121,33 @@ class Index extends Base
             $user_friend = [];// 每日好友贡献
             $user_win = [];// 每日用户盈亏
             $user_trx = [];// 每日手续费
-            for ($i=1; $i<=3; $i++){
-                $day = date('Y-m-d' ,strtotime( '+' . ($i-3) .' days', $startDate));
+            for ($i=1; $i<=7; $i++){
+                $day = date('Y-m-d' ,strtotime( '+' . ($i-7) .' days', $startDate));
                 
                 array_push($datesArray, date('m-d', strtotime($day)));
                 
-                // array_push($collection, $usersPoolRepository->search(['status'=>1], $this->request->companyId)->whereDay("add_time", $day)->count());
-                // array_push($user_add, $usersRepository->search([], $this->request->companyId)->whereDay("add_time", $day)->count());
+                array_push($collection, $usersPoolRepository->search(['status'=>1], $this->request->companyId)->whereDay("add_time", $day)->count());
+                array_push($user_add, $usersRepository->search([], $this->request->companyId)->whereDay("add_time", $day)->count());
                 
-                // $today_jc = $usersFoodLogRepository->search(['log_type' => 4, 'remark' => '基础挖矿获得'], $this->request->companyId)->whereDay("add_time", $day)->sum('amount');
-                // $today_bs = $usersFoodLogRepository->search(['log_type' => 4, 'remark' => '宝石挖矿获得'], $this->request->companyId)->whereDay("add_time", $day)->sum('amount');
+                $today_jc = $usersFoodLogRepository->search(['log_type' => 4, 'remark' => '基础挖矿获得'], $this->request->companyId)->whereDay("add_time", $day)->sum('amount');
+                $today_bs = $usersFoodLogRepository->search(['log_type' => 4, 'remark' => '宝石挖矿获得'], $this->request->companyId)->whereDay("add_time", $day)->sum('amount');
                 // $today_friend = $usersFoodLogRepository->search(['remark' => '好友贡献'], $this->request->companyId)->whereDay("add_time", $day)->sum('amount');
-                // $today_dtstr = $usersFoodLogRepository->search(['log_type' => 3, 'remark' => '大逃杀投入'], $this->request->companyId)->whereDay("add_time", $day)->sum('amount');
-                // $today_dtsdb = $usersFoodLogRepository->search(['log_type' => 4, 'remark' => '成功躲避杀手'], $this->request->companyId)->whereDay("add_time", $day)->sum('amount');
-                // $today_trx = $usersFoodLogRepository->search(['log_type' => 5, 'remark' => '转赠手续费'], $this->request->companyId)->whereDay("add_time", $day)->sum('amount');
-                array_push($wk_jc, []);
-                array_push($wk_bs, []);
-                array_push($dtstr_sr, []);
+                $today_dtstr = $usersFoodLogRepository->search(['log_type' => 3, 'remark' => '大逃杀投入'], $this->request->companyId)->whereDay("add_time", $day)->sum('amount');
+                $today_dtsdb = $usersFoodLogRepository->search(['log_type' => 4, 'remark' => '成功躲避杀手'], $this->request->companyId)->whereDay("add_time", $day)->sum('amount');
+                $today_trx = $usersFoodLogRepository->search(['log_type' => 5, 'remark' => '转赠手续费'], $this->request->companyId)->whereDay("add_time", $day)->sum('amount');
+                array_push($wk_jc, $today_jc);
+                array_push($wk_bs, $today_bs);
+                array_push($dtstr_sr, $today_dtstr);
                 array_push($dtsdb_sr, []);
                 array_push($user_friend, []);
-                array_push($user_win, []);
-                array_push($user_trx, abs(0));
+                array_push($user_win, $today_dtstr - $today_dtsdb);
+                array_push($user_trx, abs($today_trx));
             }
-            return [
+            return[
                 'time_area' => $datesArray,
                 'echart' => [
-                    'collection' => [],
-                    'user_add' => [],
+                    'collection' => $collection,
+                    'user_add' => $user_add,
                     'wk_jc' => $wk_jc,
                     'wk_bs' => $wk_bs,
                     'dtstr_sr' => $dtstr_sr,

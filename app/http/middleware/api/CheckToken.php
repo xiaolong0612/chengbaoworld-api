@@ -76,13 +76,13 @@ class CheckToken
         });
         $path = request()->baseUrl() . '_' . $userInfo['id'];
         $path = md5($path);
-        if (Cache::has('waf:' . $path)) {
-            throw new ValidateException('操作过快');
-        }
-        Cache::set('waf:' . $path, time(), 10);
+        // if (Cache::has('waf:' . $path)) {
+        //     throw new ValidateException('操作过快');
+        // }
+        // Cache::set('waf:' . $path, time(), 10);
 
         $res = $next($request);
-        Cache::delete('waf:' . $path);
+        // Cache::delete('waf:' . $path);
         return $res;
     }
 }

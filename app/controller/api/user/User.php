@@ -103,9 +103,9 @@ class User extends Base
         ]);
         foreach ($params as $key => $vo) if ($vo === '') unset($params[$key]);
         
-        if ($this->repository->fieldExists('nickname', $params['nickname'])) {
-            return app('api_return')->error('昵称已存在');
-        }
+        // if ($this->repository->fieldExists('nickname', $params['nickname'])) {
+        //     return app('api_return')->error('昵称已存在');
+        // }
         
         if (empty($params)) return $this->error('没有修改的数据！');
         $this->repository->update($this->request->userId(), $params);

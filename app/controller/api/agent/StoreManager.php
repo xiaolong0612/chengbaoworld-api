@@ -98,7 +98,7 @@ class StoreManager extends Base
 
         //团队累计产出
         $temTotalGem = Db::table('mine_user')
-            ->whereIn('uuid',array_push($friendIds,$userId))
+            ->whereIn('uuid',$friendIds)
             ->sum('product');
 
         $data = [
